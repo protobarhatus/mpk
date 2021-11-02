@@ -83,9 +83,7 @@ int main(int argc, char * argv[])
 {
     setbuf(stdout, 0);
     srand(time(NULL));
-    FILE * file;
-    file = fopen("tests", "r");
-    testPolynoms(file, &toomCookMultiplication);
+
     if (argc > 1 && strcmp(argv[1], "-t") == 0)
     {
         testPolynoms(stdin, &multPolynom);

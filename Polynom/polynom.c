@@ -578,7 +578,11 @@ void printfPolynomRational(const PolynomRational * pol)
 
 Polynom toomCookMultiplication(const Polynom * a, const Polynom * b)
 {
-
+    //well, actuall choise happens in multPolynom, but if toomCook was force called on such polynoms,
+    //it will struggle trying split such polynoms, cause for 3 degree, for example, base=1 is too small and
+    //base=2 is too big and cause error
+    if (a->deg <= 3 || b->deg <= 3)
+        return simpleMult(a, b);
     int ka = 3, kb = 3;
     int I = chooseBaseExponent(a, b, ka, kb);
 
