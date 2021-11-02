@@ -17,5 +17,3 @@ add_executable(karatsuba
 add_executable(naive naive.c ${LIB} Polynom/polynom.h Polynom/polynom.c)
 add_executable(toom_cook mpk_lvl2.c ${LIB} Polynom/polynom.h Polynom/polynom.c)
 
-
-add_executable(______metatemp gen_lib/linear_algebra_elements/matrix.c gen_lib/linear_algebra_elements/matrix.h gen_lib/linear_algebra_elements/rational.c gen_lib/linear_algebra_elements/rational.h)
