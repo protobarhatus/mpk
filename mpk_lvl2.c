@@ -96,6 +96,7 @@ int main(int argc, char * argv[])
     p2 = scanfPolynom();
 
     res = multPolynom(&p1, &p2);
+    printfPolynom(&res);
 
     destructPolynom(&p1);
     destructPolynom(&p2);
