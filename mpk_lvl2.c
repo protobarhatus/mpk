@@ -2,7 +2,7 @@
 #include "Polynom/polynom.h"
 #include "stdlib.h"
 #include "stdio.h"
-#include "gen_lib/linear_algebra_elements/matrix.h"
+
 
 Polynom randPolynom(int size)
 {
@@ -83,7 +83,14 @@ int main(int argc, char * argv[])
 {
     setbuf(stdout, 0);
     srand(time(NULL));
+    FILE * file;
+    file = fopen("tests", "r");
+    testPolynoms(file, &toomCookMultiplication);
     if (argc > 1 && strcmp(argv[1], "-t") == 0)
+    {
+        testPolynoms(stdin, &multPolynom);
+    }
+    if (argc > 1 && strcmp(argv[1], "-rt") == 0)
     {
         int len;
         scanf("%d", &len);
@@ -92,10 +99,11 @@ int main(int argc, char * argv[])
 
     Polynom p1, p2, res;
 
-    p1 = scanfPolynom();
-    p2 = scanfPolynom();
+    p1 = scanfPolynom(stdin);
+    p2 = scanfPolynom(stdin);
 
-    res = multPolynom(&p1, &p2);
+    res = toomCookMultiplication(&p1, &p2);
+    printfPolynom(&res);
 
     destructPolynom(&p1);
     destructPolynom(&p2);

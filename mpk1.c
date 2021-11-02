@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <time.h>
+
+#define FORBID_TOOM_COOK
+
 #include "Polynom/polynom.h"
 
 static int max(int a, int b)
@@ -21,7 +24,7 @@ static void tprintfPolynom(const Polynom * p)
     if (p->deg == -1)
         printf("%d", 0);
     for (int i = 0; i <= p->deg; ++i)
-        printf("%d ", p->pol[i]);
+        printf("%lld ", p->polynom[i]);
     printf("\n");
 }
 static Polynom tscanfPolynom(int len)
@@ -29,26 +32,28 @@ static Polynom tscanfPolynom(int len)
     Polynom res = defaultPolynom(len - 1);
     int i = 0;
     for (i = 0; i < len; ++i)
-        scanf("%d", &res.pol[i]);
+        scanf("%lld", &res.polynom[i]);
     return res;
 }
 
 
-int main()
+int main(int argc, char * argv[])
 {
     srand(time(NULL));
-    int len1, len2;
+    if (argc > 1 && strcmp(argv[1], "-t"))
+    {
+        testPolynoms(stdin, &karatsuba);
+    }
     Polynom p1, p2, res;
     setbuf(stdout, 0);
-    if (!scanf("%d%d", &len1, &len2))
-        abort();
 
 
 
-    p1 = tscanfPolynom(len1);
-    p2 = tscanfPolynom(len2);
 
-    res = multPolynom(&p1, &p2);
+    p1 = scanfPolynom(stdin);
+    p2 = scanfPolynom(stdin);
+
+    res = karatsuba(&p1, &p2);
     tprintfPolynom(&res);
 
     destructPolynom(&p1);

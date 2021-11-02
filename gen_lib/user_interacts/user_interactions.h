@@ -13,4 +13,6 @@ ExecutionLogMode chooseLogMode(int argc, char * argv[]);
 
 int getValue(FILE * input);
 
+
+
 #endif //GREEKLATINGSQ_USER_INTERACTIONS_H

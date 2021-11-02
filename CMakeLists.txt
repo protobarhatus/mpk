@@ -12,8 +12,9 @@ set(CMAKE_C_STANDARD 11)
 
 include (gen_lib/CMakeLists.txt)
 message(${LIB})
-add_executable(mpk
-        mpk1.c Polynom/polynom.c Polynom/polynom.h)
+add_executable(karatsuba
+        mpk1.c ${LIB} Polynom/polynom.c Polynom/polynom.h)
+add_executable(naive naive.c ${LIB} Polynom/polynom.h Polynom/polynom.c)
 add_executable(toom_cook mpk_lvl2.c ${LIB} Polynom/polynom.h Polynom/polynom.c)
 
 

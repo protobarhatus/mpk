@@ -343,9 +343,15 @@ Polynom multPolynom(const Polynom * ap, const Polynom * bp)
         return multOnNum(ap, polynomToConstantNumber(bp));
     if (ap->deg <= 100 && bp->deg <= 100)
         return simpleMult(ap, bp);
+#ifndef FORBID_TOOM_COOK
+    //kinda measured by hand and best result is between 5k and 10k
     if (ap->deg <= 7000 && bp->deg <= 7000)
         return karatsuba(ap, bp);
     return toomCookMultiplication(ap, bp);
+#endif
+#ifdef FORBID_TOOM_COOK
+    return karatsuba(ap, bp);
+#endif
 }
 
 
@@ -645,13 +651,43 @@ void printfPolynom(const Polynom * p)
         printf("%lld ", *catPolynom(p, i));
     printf("\n");
 }
-Polynom scanfPolynom()
+Polynom scanfPolynom(FILE *input)
 {
     int len = 0;
-    scanf("%d", &len);
+    fscanf(input, "%d", &len);
     Polynom res = defaultPolynom(len - 1);
     int i = 0;
     for (i = 0; i < len; ++i)
-        scanf("%lld", atPolynom(&res, i));
+        fscanf(input,"%lld", atPolynom(&res, i));
     return res;
+}
+
+
+void testPolynoms(FILE * input, Polynom (*mult_function)(const Polynom * a, const Polynom * b))
+{
+    int size;
+    fscanf(input, "%d", &size);
+    for (int i = 0; i < size; ++i)
+    {
+        Polynom a = scanfPolynom(input);
+        Polynom b = scanfPolynom(input);
+        Polynom res = scanfPolynom(input);
+        Polynom mres = multPolynom(&a, &b);
+        if (areEqualPolynom(&res, &mres))
+        {
+            printf("TEST %d: OK\n", i);
+        }
+        else
+        {
+            printf("ERROR:\nA:\n");
+            printfPolynom(&a);
+            printf("----\nB:\n");
+            printfPolynom(&b);
+            printf("----\nGot:\n");
+            printfPolynom(&mres);
+            printf("----\nExpected:\n");
+            printfPolynom(&res);
+            getchar();
+        }
+    }
 }

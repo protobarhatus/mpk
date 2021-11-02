@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include <bits/types/FILE.h>
 #include "../gen_lib/vector/vector.h"
 #include "../gen_lib/types_and_functions_declarations/functions_extensions.h"
 
@@ -90,10 +91,12 @@ Polynom getXInDegPolynomMult(const Polynom * a, const Polynom * b);
 Polynom toomCookMultiplication(const Polynom * a, const Polynom * b);
 
 void printfPolynom(const Polynom * p);
-Polynom scanfPolynom();
+Polynom scanfPolynom(FILE *input);
 bool areEqualPolynom(const Polynom * a, const Polynom * b);
 
 Polynom karatsuba(const Polynom * ap, const Polynom * bp);
+
+void testPolynoms(FILE * input, Polynom (*mult_function)(const Polynom * a, const Polynom * b));
 
 //thus, vector will contain Polynom as objects, but will not destruct them and that will allow
 //me make a split on single polynom buf
