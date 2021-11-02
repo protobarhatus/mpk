@@ -98,6 +98,9 @@ Polynom karatsuba(const Polynom * ap, const Polynom * bp);
 
 void testPolynoms(FILE * input, Polynom (*mult_function)(const Polynom * a, const Polynom * b));
 
+bool * isForbidToomCook();
+void forbidToomCook();
+
 //thus, vector will contain Polynom as objects, but will not destruct them and that will allow
 //me make a split on single polynom buf
 DECLARE_SIMPLE_TYPE(PolynomRef, PolynomRef)
@@ -108,4 +111,6 @@ MAKE_VECTOR(Polynom, Polynom)
 
 GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(Polynom, Polynom, mult, Polynom)
 GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(Polynom, Polynom, areEqual, bool);
+
+
 #endif //MPK_POLYNOM_H

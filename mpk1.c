@@ -3,7 +3,6 @@
 #include <assert.h>
 #include <time.h>
 
-#define FORBID_TOOM_COOK
 
 #include "Polynom/polynom.h"
 
@@ -39,6 +38,7 @@ static Polynom tscanfPolynom(int len)
 
 int main(int argc, char * argv[])
 {
+    forbidToomCook();
     srand(time(NULL));
     if (argc > 1 && strcmp(argv[1], "-t"))
     {

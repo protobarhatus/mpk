@@ -343,15 +343,13 @@ Polynom multPolynom(const Polynom * ap, const Polynom * bp)
         return multOnNum(ap, polynomToConstantNumber(bp));
     if (ap->deg <= 100 && bp->deg <= 100)
         return simpleMult(ap, bp);
-#ifndef FORBID_TOOM_COOK
+    if (*isForbidToomCook())
+        return karatsuba(ap, bp);
     //kinda measured by hand and best result is between 5k and 10k
     if (ap->deg <= 7000 && bp->deg <= 7000)
         return karatsuba(ap, bp);
     return toomCookMultiplication(ap, bp);
-#endif
-#ifdef FORBID_TOOM_COOK
-    return karatsuba(ap, bp);
-#endif
+
 }
 
 
@@ -694,4 +692,14 @@ void testPolynoms(FILE * input, Polynom (*mult_function)(const Polynom * a, cons
             getchar();
         }
     }
+}
+
+bool * isForbidToomCook()
+{
+    static bool forbidden = false;
+    return &forbidden;
+}
+void forbidToomCook()
+{
+    *isForbidToomCook() = true;
 }
