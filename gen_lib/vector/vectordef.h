@@ -32,8 +32,6 @@ Vector * callocDefaultVector(int size, void * def_value, const TypePresenterCont
 
 Vector defaultVectorWithStrictSize(int size, void * def_value, const TypePresenterContainer * type);
 
-Vector VectorAsArrayWrap(ArrayInt * arr);
-Vector * callocVectorAsArrayWrap(ArrayInt * arr);
 
 Vector emptyVector(const TypePresenterContainer * type);
 
@@ -76,6 +74,7 @@ static inline bool VectorCanPushBack(const Vector * obj)
 {
     return true;
 }
+//el will be moved not copied
 void VectorPushBack(Vector * obj, void * el);
 
 int VectorAsArrayIntGetSize(const Vector * obj);

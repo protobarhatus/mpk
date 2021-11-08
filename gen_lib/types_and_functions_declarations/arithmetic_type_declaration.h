@@ -7,12 +7,12 @@
 #include "functions_extensions.h"
 //its a method that enables for generalized structures such as vector to do some arithmetic work with
 //their types without knowing about their types. The main functions that need to be implemented here
-//these are addPolynom, sub, multPolynom, div, sqrt, minus
+//these are addPolynom, subComplex, multPolynom, divComplex, sqrt, minus
 //its not neccessary to declare this for all type, but only for types that it needs.
 //types must provide their arithmetic functions in singular pattern:
 //TN addPolynom##UCN(const void * arg1, const void * arg2) that creates object as a result of addition
-//void addTo##UCN(void * dest, const void * arg) that surves as cumulative func
-//all these patterns should be realized for addPolynom, sub, multPolynom, div. For others its just the first one.
+//void addToComplex##UCN(void * dest, const void * arg) that surves as cumulative func
+//all these patterns should be realized for addPolynom, subComplex, multPolynom, divComplex. For others its just the first one.
 //not all types can have sqrt so just put assert(false)
 //crucial that functions that returns TN creates them, so, if they own data in heap, pointers will be new, and data calloced
 
@@ -147,7 +147,14 @@ GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(TN, UCN, sub, TN)                       \
 GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(TN, UCN, mult, TN)                      \
 GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(TN, UCN, div, TN)                       \
 GENERATE_RIGHT_VALUE_UNARY_EXTENSIONS(TN, UCN, sqrt, TN)                   \
-GENERATE_RIGHT_VALUE_UNARY_EXTENSIONS(TN, UCN, minus, TN)
+GENERATE_RIGHT_VALUE_UNARY_EXTENSIONS(TN, UCN, minus, TN)                  \
+GENERATE_RIGHT_VALUE_CUMULATIVE_UNARY_EXTENSIONS(TN, UCN, addTo)           \
+GENERATE_RIGHT_VALUE_CUMULATIVE_UNARY_EXTENSIONS(TN, UCN, subTo)           \
+GENERATE_RIGHT_VALUE_CUMULATIVE_UNARY_EXTENSIONS(TN, UCN, multTo)           \
+GENERATE_RIGHT_VALUE_CUMULATIVE_UNARY_EXTENSIONS(TN, UCN, divTo)
+
+
+
 
 #define DECLARE_ARITHMETIC_TYPE(TN, UCN) \
 static inline const ArithmeticTypePresenter* ARITHM_TYPE_##UCN() {\

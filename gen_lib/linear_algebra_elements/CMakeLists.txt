@@ -8,4 +8,6 @@ set(LINEAR_ALGEBRA linear_algebra_elements/matrix.c
         linear_algebra_elements/vector_algebraic_addendum.c
         linear_algebra_elements/vector_algebraic_addendum.h
         linear_algebra_elements/rational.c
-        linear_algebra_elements/rational.h)
+        linear_algebra_elements/rational.h
+        linear_algebra_elements/complex.c
+        linear_algebra_elements/complex.h)

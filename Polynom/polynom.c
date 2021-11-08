@@ -16,6 +16,7 @@ Polynom defaultPolynom(int deg)
     res.deg = deg;
     if (deg + 1 > 0)
         res.polynom = (long long int *)calloc(deg + 1, sizeof(long long int));
+    res.step = 1;
     return res;
 }
 typedef Polynom PolynomRef;
@@ -31,6 +32,7 @@ Polynom movePolynom(Polynom * pol)
     res.deg = pol->deg;
     res.polynom = pol->polynom;
     pol->polynom = NULL;
+    res.step = pol->step;
     return res;
 }
 
@@ -67,9 +69,11 @@ Polynom copyPolynom(const Polynom * a)
 
     Polynom res = defaultPolynom(a->deg);
     int i = 0;
+    res.step = a->step;
     if (a->polynom == NULL)
     {
         res.polynom = NULL;
+
         return res;
     }
     for (i = 0; i <= a->deg; ++i)
@@ -91,6 +95,7 @@ Polynom emptyPolynom()
     Polynom res;
     res.deg = -1;
     res.polynom = NULL;
+    res.step = 1;
     return res;
 }
 
@@ -121,6 +126,15 @@ Polynom addRV(Polynom a, Polynom b)
     Polynom res = addPolynom(&a, &b);
     destructPolynom(&a);
     destructPolynom(&b);
+    return res;
+}
+
+Polynom defaultSparcePolynomRef(int deg, void * start, int step)
+{
+    Polynom res;
+    res.deg = deg;
+    res.polynom = start;
+    res.step = step;
     return res;
 }
 
@@ -232,8 +246,10 @@ PairPolynom splitPolynomOnXInDeg(const Polynom * p, int x_deg)
     Polynom b;
     a.polynom = &p->polynom[x_deg];
     a.deg = p->deg - x_deg;
+    a.step = 1;
     b.polynom = p->polynom;
     b.deg = x_deg - 1;
+    b.step = 1;
 
     return defaultPairPolynom(&a, &b);
 }
@@ -350,6 +366,16 @@ Polynom multPolynom(const Polynom * ap, const Polynom * bp)
         return karatsuba(ap, bp);
     return toomCookMultiplication(ap, bp);
 
+}
+
+Polynom increasedPolynom(const Polynom * pol, int new_deg)
+{
+    Polynom res = defaultPolynom(new_deg);
+    for (int i = 0; i < pol->deg + 1; ++i)
+        *atPolynom(&res, i) = *catPolynom(pol, i);
+    for (int i = pol->deg + 1; i <= new_deg; ++i)
+        *atPolynom(&res, i) = 0;
+    return res;
 }
 
 

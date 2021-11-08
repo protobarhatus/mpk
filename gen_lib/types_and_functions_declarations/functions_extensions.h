@@ -37,8 +37,12 @@ static inline RETV FUNC##UCN##RV(TN a, TN b)                           \
 
 
 
-
-
+#define GENERATE_RIGHT_VALUE_CUMULATIVE_UNARY_EXTENSIONS(TN, UCN, FUNC) \
+static inline void FUNC##UCN##RV(TN * a, TN b)                                \
+{\
+    FUNC##UCN(a, &b);                                                   \
+    destruct##UCN(&b);\
+}
 
 
 

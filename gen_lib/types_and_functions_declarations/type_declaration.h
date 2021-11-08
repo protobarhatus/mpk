@@ -3,7 +3,8 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
-
+#include <assert.h>
+#include <stdlib.h>
 
 /*to be used in generalized structures, type must be declared
  * declaration is creating a function named TYPE_<TypeNameInUpperCamelCase> that returns pointer to container variable
@@ -12,6 +13,12 @@
  * variable is different (if compiler will not optimize it) and thus cannot be changed at all
  * thats needed because structures that work with generalized type need implementations of all this functions
  * SIMPLE_TYPE means that it has no internal logic while copying and no work while destruction (may be internal type, or struct)
+ * POINTER_TYPE is special declaration that serves for generalized structures. It must be pointer. Structures, made on that type, will
+ * behave like structures on std::unique_ptr. Copy function of this type will have assert(false);
+ * Structures on that type cannot be created on size > 1, and cannot be copied. (As i cannot mark it =delete in C, they will just
+ * call assert(false) somewhere). In destructor, they will destruct object behind that pointer and free the pointer;
+ * I need to create it and not use just unique_ptr, because in C to get data behind it i will need to call extra function and
+ * this is just inconvenient and ugly
  * STRUCT_TYPE is any structure with complex behaviour
  *
  * while creating structure, user is obligated to call DECLARE_TYPE_<type_class>(<type>, <typename>) with appropriate type class (simple, or struct)
@@ -67,20 +74,24 @@ void* nonConstMemcpyDecl(void * dest, void * src, size_t n);
         return &type;}
 
 //call every time with DECLARE_TYPE on SIMPLE_TYPE
-#define GEN_DUMMY_FUNCS_FOR_SIMPLE_TYPE(TN, UCN) static inline TN copy##UCN(const TN * b) {return *b;} static inline void destruct##UCN(TN * a) {} static inline TN move##UCN(TN * b) {return *b;}
-//call every time with DECLARE_TYPE on POINTER_TYPE
-#define GEN_DUMMY_FUNCS_FOR_POINTER_TYPE(TN, UCN) TN copy##UCN(const TN * b) {return *b;} TN move##UCN(TN * b) {return *b;}
+#define GEN_DUMMY_FUNCS_FOR_SIMPLE_TYPE(TN, UCN) static inline TN copy##UCN(TN const * b) {return *b;} static inline void destruct##UCN(TN * a) {} static inline TN move##UCN(TN * b) {return *b;}
+//call every time with DECLARE_TYPE on POINTER_TYPE, but since behaviour of POINTER type is more
+//like struct type (i.e. complex copy and destruct logic), after it have to call GEN_DUMMY_FUNCS_FOR_STRUCT_TYPE
+#define GEN_DUMMY_FUNCS_FOR_POINTER_TYPE(TN, UCN, STRUCT_BEHIND_PTR) \
+    static inline TN copy##UCN(TN const  * src) {assert(false); return *src;};\
+    static inline TN move##UCN(TN * src) { TN buff = *src; *src = NULL; return buff;}      \
+    static inline void destruct##UCN(TN * obj) {  destruct##STRUCT_BEHIND_PTR(*obj); free(*obj); *obj = NULL; }                                                      \
 //call every time with DECLARE_TYPE on STRUCT_TYPE (here they are not actually dummy but naming should be consistent
 //the purpose of previous to is to have functions like copy##UCN for types that dont need it but
 //they are have to be declared and thus defined
 //but this is creation of wrapping functions that get generalized arguments but work according to type
 //and copy##UCN, destruct##UCN, move##UCN MUST be defined from outside
 #define GEN_DUMMY_FUNCS_FOR_STRUCT_TYPE(TN, UCN) \
-   TN copy##UCN(const TN * src);                                                           \
+   TN copy##UCN(TN const  * src);                                                           \
    /*return value absolutely doesn't matter but it need to be the same type with memcpy*/                                                                                                 \
    static inline void* cpyFunc##UCN(void * dest, const void * src, size_t n)                                \
    {                                                                                                    \
-        *((TN *)dest) = copy##UCN((const TN*)src);                                                              \
+        *((TN *)dest) = copy##UCN((TN const *)src);                                                              \
         return NULL;                                                                                        \
    }                                                                                    \
                                                                                         \
@@ -102,7 +113,7 @@ void* nonConstMemcpyDecl(void * dest, void * src, size_t n);
    /*return value absolutely doesn't matter but it need to be the same type with memcpy*/                                                                                                 \
    static inline void* cpyFunc##UCN(void * dest, const void * src, size_t n)                                \
    {                                                                                                    \
-        *((TN *)dest) = copy##UCN((const TN*)src);                                                              \
+        *((TN *)dest) = copy##UCN((TN const *)src);                                                              \
         return NULL;                                                                                        \
    }                                                                                    \
                                                                                         \
@@ -126,16 +137,34 @@ void* nonConstMemcpyDecl(void * dest, void * src, size_t n);
         *a = b;\
     }
 
+
+#define GEN_OTHER_USEFUL_FUNCS_TO_SIMPLE_TYPE(TN, UCN) \
+    static inline void replace##UCN(TN * a, TN b)      \
+    {                                                  \
+        *a = b;\
+    }                                                   \
+                                                       \
+                                                       \
+
+
+
 #define DECLARE_SIMPLE_TYPE(TN, UCN) \
 DECLARE_TYPE(TN, UCN, SIMPLE_TYPE)   \
-GEN_DUMMY_FUNCS_FOR_SIMPLE_TYPE(TN, UCN)
-
+GEN_DUMMY_FUNCS_FOR_SIMPLE_TYPE(TN, UCN) \
+GEN_OTHER_USEFUL_FUNCS_TO_SIMPLE_TYPE(TN, UCN)
 
 #define DECLARE_STRUCT_TYPE(TN, UCN) \
 GEN_DUMMY_FUNCS_FOR_STRUCT_TYPE(TN, UCN)                                     \
 DECLARE_TYPE(TN, UCN, STRUCT_TYPE(UCN))\
 GEN_OTHER_USEFUL_FUNCS_TO_STRUCT_TYPE(TN, UCN)
+//HERE UCN is name of structure OF which will be POINTER. Name of type will be UCN+Ptr
+#define CREATE_UNIQUE_POINTER(TN, UCN) \
+GEN_DUMMY_FUNCS_FOR_POINTER_TYPE(TN, UCN##Ptr, UCN) \
+GEN_DUMMY_FUNCS_FOR_STRUCT_TYPE(TN, UCN##Ptr)                                       \
+DECLARE_TYPE(TN, UCN##Ptr, STRUCT_TYPE(UCN##Ptr))   \
+typedef TN UCN##Ptr;
 
+//this is for vector and etc
 #define DECLARE_STRUCT_INLINE_TYPE(TN, UCN) \
 GEN_DUMMY_FUNCS_FOR_STRUCT_TYPE_WITH_INLINE_DECLARATION(TN, UCN)\
 DECLARE_TYPE(TN, UCN, STRUCT_TYPE(UCN))     \
@@ -147,6 +176,8 @@ DECLARE_SIMPLE_TYPE(bool, Bool)
 DECLARE_SIMPLE_TYPE(double, Double)
 DECLARE_SIMPLE_TYPE(long long int, LongLongInt)
 DECLARE_SIMPLE_TYPE(float, Float)
+
+CREATE_UNIQUE_POINTER(int*, Int)
 
 
 static inline bool areSameTypes(const TypePresenterContainer * a, const TypePresenterContainer * b)

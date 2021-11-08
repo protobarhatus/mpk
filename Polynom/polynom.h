@@ -11,21 +11,22 @@ struct Polynom_struct
 {
     int deg;
     long long int * polynom;
-
+    int step;
 };
 typedef struct Polynom_struct Polynom;
 typedef struct Polynom_struct PolynomRef;
 
 
+
 static inline long long int * atPolynom(Polynom * a, int i)
 {
     assert(i >= 0 && i <= a->deg);
-    return &a->polynom[i];
+    return &a->polynom[i * a->step];
 }
 static inline const long long int * catPolynom(const Polynom * a, int i)
 {
     assert(i >= 0 && i <= a->deg);
-    return &a->polynom[i];
+    return &a->polynom[i * a->step];
 }
 
 //thats needed for mpk lvl 1, for other levels i prefer do it with macro
@@ -43,6 +44,7 @@ void simpleMultOnBuff(Polynom * res, const Polynom * a, const Polynom * b);
 void addShiftedOnBuff(Polynom * buff, const Polynom * a, int shift_a, const Polynom * b, int shift_b);
 
 Polynom defaultPolynom(int deg);
+Polynom defaultSparcePolynomRef(int deg, void * start, int step);
 //this sorta like standart constructor, that makes absolutely no callocs
 Polynom emptyPolynom();
 Polynom movePolynom(Polynom * pol);
@@ -100,6 +102,8 @@ void testPolynoms(FILE * input, Polynom (*mult_function)(const Polynom * a, cons
 
 bool * isForbidToomCook();
 void forbidToomCook();
+
+Polynom increasedPolynom(const Polynom * pol, int new_deg);
 
 //thus, vector will contain Polynom as objects, but will not destruct them and that will allow
 //me make a split on single polynom buf

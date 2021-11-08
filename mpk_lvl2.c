@@ -79,6 +79,7 @@ void test(int len)
     printf("CORRECT\n");
 }
 
+
 int main(int argc, char * argv[])
 {
     setbuf(stdout, 0);
