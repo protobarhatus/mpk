@@ -1,18 +1,18 @@
 #include <stdio.h>
 #include "vector/algorithms.h"
 #include "fourier.h"
-#define Pi 3.1415926536
+#define Pi M_PI
 DiscreteFourier naiveDiscreteFourierTransform(const Polynom * polynom)
 {
     int N = polynom->deg + 1;
     DiscreteFourier res = defaultVectorComplexCalloc(N, nullComplex());
-
-    for (int k = 0; k < polynom->deg + 1; ++k)
+    double exp_mult = -2*Pi / N;
+    for (int k = 0; k < N; ++k)
     {
-        for (int n = 0; n < polynom->deg + 1; ++n)
+        for (int n = 0; n < N; ++n)
         {
             addToComplexRV(atVectorComplex(&res, k),
-                         multComplexRV(exponentComplexRV(defaultComplex(0, -2*Pi/N * k * n)),
+                         multComplexRV(exponentComplexRV(defaultComplex(0, exp_mult * k * n)),
                                        defaultComplex((double)*catPolynom(polynom, n), 0)));
         }
     }
