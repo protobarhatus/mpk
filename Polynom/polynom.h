@@ -105,6 +105,10 @@ void forbidToomCook();
 
 Polynom increasedPolynom(const Polynom * pol, int new_deg);
 
+
+Polynom randPolynom(int size);
+Polynom scanfRandPolynom(int len);
+
 //thus, vector will contain Polynom as objects, but will not destruct them and that will allow
 //me make a split on single polynom buf
 DECLARE_SIMPLE_TYPE(PolynomRef, PolynomRef)

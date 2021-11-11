@@ -4,22 +4,7 @@
 #include "stdio.h"
 
 
-Polynom randPolynom(int size)
-{
-    Polynom res = defaultPolynom(size - 1);
-    for (int i = 0; i < size; ++i)
-    {
-        *atPolynom(&res, i) = rand() % 40 - 20;
-    }
-    return res;
-}
 
-Polynom scanfRandPolynom(int len)
-{
-    if (len == -1)
-        scanf("%d", &len);
-    return randPolynom(len);
-}
 
 void strictTest(int len)
 {

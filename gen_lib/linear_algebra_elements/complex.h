@@ -33,6 +33,10 @@ Complex unitComplex();
 
 void printfComplex(const Complex * com);
 
+bool equalComplex(const Complex * a, const Complex * b);
+
+GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(Complex, Complex, equal, bool)
+
 DECLARE_TYPE_AS_ARITHMETIC(Complex, Complex);
 MAKE_VECTOR(Complex, Complex)
 

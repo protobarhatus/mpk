@@ -8,5 +8,10 @@
 typedef VectorComplex DiscreteFourier;
 
 DiscreteFourier countDiscreteFourierTransform(const Polynom * polynom);
+DiscreteFourier naiveDiscreteFourierTransform(const Polynom * polynom);
+
+bool equalDiscreteFourier(const DiscreteFourier * a, const DiscreteFourier * b);
+
+void printfDiscreteFourier(const DiscreteFourier * fourier);
 
 #endif //FIBONACHY_NIM_FOURIER_H

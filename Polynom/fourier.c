@@ -1,9 +1,12 @@
+#include <stdio.h>
+#include "vector/algorithms.h"
 #include "fourier.h"
 #define Pi 3.1415926536
 DiscreteFourier naiveDiscreteFourierTransform(const Polynom * polynom)
 {
-    DiscreteFourier res = defaultVectorComplexCalloc(polynom->deg + 1, nullComplex());
     int N = polynom->deg + 1;
+    DiscreteFourier res = defaultVectorComplexCalloc(N, nullComplex());
+
     for (int k = 0; k < polynom->deg + 1; ++k)
     {
         for (int n = 0; n < polynom->deg + 1; ++n)
@@ -18,14 +21,16 @@ DiscreteFourier naiveDiscreteFourierTransform(const Polynom * polynom)
 
 DiscreteFourier cooleyTukey(const Polynom * polynom)
 {
-    int N_half = (polynom->deg + 1) / 2;
+    int N = polynom->deg + 1;
+    assert(N % 2 == 0);
+    int N_half = N / 2;
     PolynomRef e_polynom = defaultSparcePolynomRef(N_half - 1, polynom->polynom, 2 * polynom->step);
     PolynomRef o_polynom = defaultSparcePolynomRef(N_half - 1, polynom->polynom + 1 * polynom->step, 2 * polynom->step);
     DiscreteFourier E = countDiscreteFourierTransform(&e_polynom),
                     O = countDiscreteFourierTransform(&o_polynom);
 
-    double exp_mult = -2*Pi / (polynom->deg + 1);
-    DiscreteFourier res = defaultVectorComplexCalloc(polynom->deg + 1, nullComplex());
+    double exp_mult = -2*Pi / N;
+    DiscreteFourier res = defaultVectorComplexCalloc(N, nullComplex());
     for (int k = 0; k <N_half; ++k)
     {
         Complex O_mult = exponentComplexRV(defaultComplex(0, exp_mult * k));
@@ -48,73 +53,46 @@ DiscreteFourier cooleyTukey(const Polynom * polynom)
 
 
 
-const int powers_of_two[] = {
-        1,
-        2,
-        4,
-        8,
-        16,
-        32,
-        64,
-        128,
-        256,
-        512,
-        1024,
-        2048,
-        4096,
-        8192,
-        16384,
-        32768,
-        65536,
-        131072,
-        262144,
-        524288,
-        1048576,
-        2097152,
-        4194304,
-        8388608,
-        16777216,
-        33554432,
-        67108864,
-        134217728,
-        268435456,
-        536870912,
-        1073741824
-};
-static int findNextPower(int n)
-{
-    //kinda no sense write binsearcn but just cut twice why not
-    if (n > powers_of_two[15])
-    {
-        for (int i = 16; i <= 30; ++i)
-            if (powers_of_two[i] >= n)
-                return powers_of_two[i];
-    }
-    else if (n < powers_of_two[15])
-    {
-        for (int i = 0; i <= 14; ++i)
-            if (powers_of_two[i] >= n)
-                return powers_of_two[i];
-    }
-    return powers_of_two[15];
-}
+
 DiscreteFourier countDiscreteFourierTransform(const Polynom * polynom)
 {
-    assert(polynom->deg + 1 <= powers_of_two[30]);
-
-    if (polynom->deg + 1 <= 2)
+    int N = polynom->deg + 1;
+    //really seems that it is the fastest
+    if (N <= 2)
         return naiveDiscreteFourierTransform(polynom);
 
 
-    int next_pow = findNextPower(polynom->deg + 1);
-    if (next_pow == polynom->deg + 1)
+    int next_pow = findNextPower(N);
+    if (next_pow == N)
         return cooleyTukey(polynom);
 
     Polynom counted_polynom = increasedPolynom(polynom, next_pow - 1);
     DiscreteFourier res = cooleyTukey(&counted_polynom);
-    res.resize(&res, polynom->deg + 1);
+    res.resize(&res, N);
 
     destructPolynom(&counted_polynom);
     return res;
 
+}
+
+bool equalDiscreteFourier(const DiscreteFourier * a, const DiscreteFourier * b)
+{
+
+    if (vectorComplexGetSize(a) != vectorComplexGetSize(b))
+        return false;
+    for (int i = 0; i < vectorComplexGetSize(a); ++i)
+        if (!equalComplex(catVectorComplex(a, i), catVectorComplex(b, i)))
+            return false;
+
+    return true;
+}
+
+void printfDiscreteFourier(const DiscreteFourier * fourier)
+{
+    for (int i = 0; i < fourier->getSize(fourier); ++i)
+    {
+        printfComplex(catVectorComplex(fourier, i));
+        printf("; ");
+    }
+    printf("\n");
 }

@@ -21,7 +21,7 @@ int intLessComparator(const void * a, const void * b);
 
 long long int gcd(long long int a, long long int b);
 
-
+int findNextPower(int n);
 
 static inline bool areStringsEquall(const char * a, const char * b)
 {

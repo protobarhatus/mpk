@@ -80,7 +80,7 @@ Complex exponentComplex(const Complex * a)
 }
 static bool equal(double a, double b)
 {
-    return fabs(a - b) <= 1e-15;
+    return fabs(a - b) <= 1e-5;
 }
 void printfComplex(const Complex * com)
 {
@@ -92,4 +92,10 @@ void printfComplex(const Complex * com)
         printf("%f", com->a);
     else
         printf("%f + %f * i ", com->a, com->b);
+}
+
+bool equalComplex(const Complex * a, const Complex * b)
+{
+    const double precision = 1e-3;
+    return (fabs(a->a - b->a) <= precision) && (fabs(a->b - b->b) <= precision);
 }
