@@ -34,14 +34,14 @@ DiscreteFourier cooleyTukey(const Polynom * polynom)
     for (int k = 0; k <N_half; ++k)
     {
         Complex O_mult = exponentComplexRV(defaultComplex(0, exp_mult * k));
+        Complex O_multed = multComplex(&O_mult, atVectorComplex(&O, k));
 
-        *atVectorComplex(&res, k) = addComplexLVRV(atVectorComplex(&E, k),
-                                                 multComplex(&O_mult, atVectorComplex(&O, k)));
+        *atVectorComplex(&res, k) = addComplex(atVectorComplex(&E, k), &O_multed);
 
-        *atVectorComplex(&res, k + N_half) = subComplexLVRV(atVectorComplex(&E, k),
-                                                            multComplex(&O_mult, atVectorComplex(&O, k)));
+        *atVectorComplex(&res, k + N_half) = subComplex(atVectorComplex(&E, k), &O_multed);
 
         destructComplex(&O_mult);
+        destructComplex(&O_multed);
     }
 
     destructVectorComplex(&E);
