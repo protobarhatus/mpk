@@ -1,88 +1,88 @@
 #include <stdio.h>
 #include "complex.h"
 
-Complex defaultComplex(double a, double b)
+MyComplex defaultMyComplex(double a, double b)
 {
-    Complex res;
+    MyComplex res;
     res.a = a;
     res.b = b;
     return res;
 }
 
-void addToComplex(Complex * a, const Complex * b)
+void addToMyComplex(MyComplex * a, const MyComplex * b)
 {
     a->a += b->a;
     a->b += b->b;
 }
 
-Complex addComplex(const Complex * a, const Complex * b)
+MyComplex addMyComplex(const MyComplex * a, const MyComplex * b)
 {
-    Complex res = copyComplex(a);
-    addToComplex(&res, b);
+    MyComplex res = copyMyComplex(a);
+    addToMyComplex(&res, b);
     return res;
 }
 
-void subToComplex(Complex * a, const Complex * b)
+void subToMyComplex(MyComplex * a, const MyComplex * b)
 {
     a->a -= b->a;
     a->b -= b->b;
 }
 
-Complex subComplex(const Complex * a, const Complex * b)
+MyComplex subMyComplex(const MyComplex * a, const MyComplex * b)
 {
-    Complex res = copyComplex(a);
-    subToComplex(&res, b);
+    MyComplex res = copyMyComplex(a);
+    subToMyComplex(&res, b);
     return res;
 }
 //(a1 + b1 i)(a2 + b2 i) = a1*a2 + i(b1 a2 + b2 a1) - b1b2
-Complex multComplex(const Complex * a, const Complex * b)
+MyComplex multMyComplex(const MyComplex * a, const MyComplex * b)
 {
 
-    return defaultComplex(a->a * b->a- a->b * b->b, a->b * b->a + a->a * b->b);
+    return defaultMyComplex(a->a * b->a- a->b * b->b, a->b * b->a + a->a * b->b);
 }
 
-void multToComplex(Complex * a, const Complex * b)
+void multToMyComplex(MyComplex * a, const MyComplex * b)
 {
-    replaceComplex(a, multComplex(a, b));
+    replaceMyComplex(a, multMyComplex(a, b));
 }
 
 // (a1 + b1 i )/(a2 + b2 i) = (a1 + b1 i)*(a2 - b2 i)/(a2 + b2 i)/(a2 - b2 i) = (a1*a2 + b1*b2 + i(b1*a2 - a1*b2)) / (a2^2 + b2^2)
-Complex divComplex(const Complex * a, const Complex * b)
+MyComplex divMyComplex(const MyComplex * a, const MyComplex * b)
 {
     double d = b->a * b->a + b->b * b->b;
-    return defaultComplex((a->a * b->a + a->b * b->b) / d, (a->b * b->a - a->a * b->b) / d);
+    return defaultMyComplex((a->a * b->a + a->b * b->b) / d, (a->b * b->a - a->a * b->b) / d);
 }
-void divToComplex(Complex * a, const Complex * b)
+void divToMyComplex(MyComplex * a, const MyComplex * b)
 {
-    replaceComplex(a, divComplex(a, b));
+    replaceMyComplex(a, divMyComplex(a, b));
 }
-Complex sqrtComplex(const Complex * a)
+MyComplex sqrtMyComplex(const MyComplex * a)
 {
     assert(false);
-    return defaultComplex(0, 0);
+    return defaultMyComplex(0, 0);
 }
-Complex minusComplex(const Complex * a)
+MyComplex minusMyComplex(const MyComplex * a)
 {
-    return defaultComplex(-a->a, -a->b);
+    return defaultMyComplex(-a->a, -a->b);
 }
-Complex nullComplex()
+MyComplex nullMyComplex()
 {
-    return defaultComplex(0, 0);
+    return defaultMyComplex(0, 0);
 }
-Complex unitComplex()
+MyComplex unitMyComplex()
 {
-    return defaultComplex(1, 0);
+    return defaultMyComplex(1, 0);
 }
-Complex exponentComplex(const Complex * a)
+MyComplex exponentMyComplex(const MyComplex * a)
 {
     double real_mult = pow(euler, a->a);
-    return defaultComplex(real_mult * cos(a->b), real_mult * sin(a->b));
+    return defaultMyComplex(real_mult * cos(a->b), real_mult * sin(a->b));
 }
 static bool equal(double a, double b)
 {
-    return fabs(a - b) <= 1e-5;
+    return fabs(a - b) <= 1e-3;
 }
-void printfComplex(const Complex * com)
+void printfMyComplex(const MyComplex * com)
 {
     if (equal(com->a, 0) && equal(com->b, 0))
         printf("0 ");
@@ -94,8 +94,9 @@ void printfComplex(const Complex * com)
         printf("%f + %f * i ", com->a, com->b);
 }
 
-bool equalComplex(const Complex * a, const Complex * b)
+bool equalMyComplex(const MyComplex * a, const MyComplex * b)
 {
     const double precision = 1e-3;
     return (fabs(a->a - b->a) <= precision) && (fabs(a->b - b->b) <= precision);
 }
+

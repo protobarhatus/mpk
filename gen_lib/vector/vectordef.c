@@ -33,7 +33,17 @@ Vector defaultVectorCalloc(int size, void * def_value, const TypePresenterContai
 
     obj.type = type;
 
+
     return obj;
+}
+VectorRef wrapVector(const void * vec, int size, const TypePresenterContainer  * type)
+{
+    VectorRef res;
+    res.type = type;
+    res.vec = (void*)vec;
+    res.size = size;
+    res.allocated_size = -2;
+    return res;
 }
 
 Vector * callocDefaultVector(int size, void * def_value, const TypePresenterContainer * type)
@@ -50,6 +60,7 @@ Vector * callocDefaultVector(int size, void * def_value, const TypePresenterCont
         free(def_value);
 
     obj->type = type;
+
     return obj;
 }
 
@@ -72,6 +83,7 @@ Vector defaultVectorWithStrictSize(int size, void * def_value, const TypePresent
 
     obj.type = type;
 
+
     return obj;
 }
 
@@ -87,6 +99,7 @@ Vector copyVector(const Vector * cop)
 
 
     res.type = cop->type;
+
     return res;
 }
 
@@ -100,6 +113,7 @@ Vector moveVector(Vector * cop)
 
 
     res.type = cop->type;
+
     return res;
 }
 Vector* callocCopyVector(const Vector * cop)
@@ -171,6 +185,8 @@ void destructVector(Vector * obj)
 
 }
 
+
+
 void deleteVector(Vector ** obj)
 {
     destructVector(*obj);
@@ -184,6 +200,7 @@ Vector emptyVector(const TypePresenterContainer * type)
     res.allocated_size = 0;
     res.type = type;
     res.vec = NULL;
+
     return res;
 }
 

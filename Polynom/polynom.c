@@ -4,22 +4,21 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <vector/algorithms.h>
+#include "fourier.h"
 /* so, toom-cook algorithm requires splitting numbers into polynoms with base no more then k. Since i am
  * working with polynoms, i will assume these are numbers in base 2^(64) (2^(sizeof(long long int)*CHAR_BIT))
  * (amount of digits equall amount of coefficients) (and i will hope there will be no overflow)
  * and that negative digits wont mess up it*/
 
-typedef struct Polynom_struct Polynom;
 Polynom defaultPolynom(int deg)
 {
     Polynom res;
     res.deg = deg;
     if (deg + 1 > 0)
         res.polynom = (long long int *)calloc(deg + 1, sizeof(long long int));
-    res.step = 1;
     return res;
 }
-typedef Polynom PolynomRef;
 
 void destructPolynom(Polynom * obj)
 {
@@ -32,7 +31,6 @@ Polynom movePolynom(Polynom * pol)
     res.deg = pol->deg;
     res.polynom = pol->polynom;
     pol->polynom = NULL;
-    res.step = pol->step;
     return res;
 }
 
@@ -69,7 +67,6 @@ Polynom copyPolynom(const Polynom * a)
 
     Polynom res = defaultPolynom(a->deg);
     int i = 0;
-    res.step = a->step;
     if (a->polynom == NULL)
     {
         res.polynom = NULL;
@@ -81,21 +78,12 @@ Polynom copyPolynom(const Polynom * a)
     return res;
 }
 
-static int max(int a, int b)
-{
-    return a > b ? a : b;
-}
-static int min(int a, int b)
-{
-    return a < b ? a : b;
-}
 
 Polynom emptyPolynom()
 {
     Polynom res;
     res.deg = -1;
     res.polynom = NULL;
-    res.step = 1;
     return res;
 }
 
@@ -126,15 +114,6 @@ Polynom addRV(Polynom a, Polynom b)
     Polynom res = addPolynom(&a, &b);
     destructPolynom(&a);
     destructPolynom(&b);
-    return res;
-}
-
-Polynom defaultSparcePolynomRef(int deg, void * start, int step)
-{
-    Polynom res;
-    res.deg = deg;
-    res.polynom = start;
-    res.step = step;
     return res;
 }
 
@@ -246,10 +225,8 @@ PairPolynom splitPolynomOnXInDeg(const Polynom * p, int x_deg)
     Polynom b;
     a.polynom = &p->polynom[x_deg];
     a.deg = p->deg - x_deg;
-    a.step = 1;
     b.polynom = p->polynom;
     b.deg = x_deg - 1;
-    b.step = 1;
 
     return defaultPairPolynom(&a, &b);
 }
@@ -608,10 +585,10 @@ Polynom toomCookMultiplication(const Polynom * a, const Polynom * b)
     if (a->deg <= 3 || b->deg <= 3)
         return simpleMult(a, b);
     int ka = 3, kb = 3;
-    int I = chooseBaseExponent(a, b, ka, kb);
+    int base = chooseBaseExponent(a, b, ka, kb);
 
     PolynomOfPolynoms p, q;
-    split(&p, &q, a, b, I, ka, kb);
+    split(&p, &q, a, b, base, ka, kb);
 
     int res_deg_of_dig = p.deg + q.deg;
 
@@ -623,8 +600,8 @@ Polynom toomCookMultiplication(const Polynom * a, const Polynom * b)
     {
 
         *values_at_points.at(&values_at_points, i) = toPolynomRationalFromPolynomRV(multPolynomRV(
-                getValueInPointOfPolynomOfPolynom(&p, point, I),
-                getValueInPointOfPolynomOfPolynom(&q, point, I)));
+                getValueInPointOfPolynomOfPolynom(&p, point, base),
+                getValueInPointOfPolynomOfPolynom(&q, point, base)));
         if (point <= 0)
             point = -point + 1;
         else
@@ -637,7 +614,7 @@ Polynom toomCookMultiplication(const Polynom * a, const Polynom * b)
 
     //well, its better to write multiplication of matrix on vector as normal, but
     //i don't wanna think how to correctly generalize multiplication of different types
-    VectorPolynom coefficients_of_result = multMatrixOfRationalOnVectorOfPolynoms(&coe_matrix, &values_at_points, I);
+    VectorPolynom coefficients_of_result = multMatrixOfRationalOnVectorOfPolynoms(&coe_matrix, &values_at_points, base);
     int coe_size = coefficients_of_result.getSize(&coefficients_of_result);
     Polynom result = defaultPolynom(a->deg + b->deg);
 
@@ -650,9 +627,9 @@ Polynom toomCookMultiplication(const Polynom * a, const Polynom * b)
 
         for (int j = 0; j <= this_coe_deg; ++j)
         {
-            if (j + i * I > result.deg)
+            if (j + i * base > result.deg)
                 assert(false);
-            *atPolynom(&result, j + i * I) += *atPolynom(this_coe, j);
+            *atPolynom(&result, j + i * base) += *atPolynom(this_coe, j);
         }
 
     }
@@ -669,7 +646,41 @@ Polynom toomCookMultiplication(const Polynom * a, const Polynom * b)
 
     return result;
 }
+Polynom schonhageStrassenAlgorithm(const Polynom * a, const Polynom * b)
+{
+    if (a->deg < b->deg)
+    {
+        Polynom aincr = increasedPolynom(a, b->deg);
+        Polynom res = schonhageStrassenAlgorithm(&aincr, b);
+        destructPolynom(&aincr);
+        return res;
+    }
+    if (b->deg < a->deg)
+        return schonhageStrassenAlgorithm(b, a);
+    int n = findNextPower(a->deg + 1);
+    //int n = a->deg + 1;
+    Polynom a_incr = increasedPolynom(a, n * 2 - 1);
+    Polynom b_incr = increasedPolynom(b, n * 2 - 1);
+    DiscreteFourier a_dft = discreteFourierTransformForPolynom(&a_incr);
+    DiscreteFourier b_dft = discreteFourierTransformForPolynom(&b_incr);
 
+    DiscreteFourier res_dft = defaultVectorComplexCalloc(2*n, 0);
+    for (int i = 0; i < 2*n; ++i)
+    {
+        *atVectorComplex(&res_dft, i) = *atVectorComplex(&a_dft, i) * *atVectorComplex(&b_dft, i);
+    }
+    Polynom res = inverseFourierTransformForPolynom(&res_dft);
+
+    destructPolynom(&a_incr);
+    destructPolynom(&b_incr);
+    destructVectorComplex(&res_dft);
+    destructVectorComplex(&a_dft);
+    destructVectorComplex(&b_dft);
+    shrinkLeadZeroez(&res);
+
+    return res;
+
+}
 
 void printfPolynom(const Polynom * p)
 {
@@ -745,4 +756,8 @@ Polynom scanfRandPolynom(int len)
     if (len == -1)
         scanf("%d", &len);
     return randPolynom(len);
+}
+void allowToomCook()
+{
+    *isForbidToomCook() = false;
 }

@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <complex.h>
 
 /*to be used in generalized structures, type must be declared
  * declaration is creating a function named TYPE_<TypeNameInUpperCamelCase> that returns pointer to container variable
@@ -31,7 +32,10 @@
  * Also, for different purposes there may be different classes of types. This is main one, but
  * also there can be arithmetic containers and etc. All of them must be declared separatly if needed
  *
- * */
+ *
+ * Types may get Ref analogs. These are like links, they are build on existing data and doesn't own anything in them.
+ * So, user must make sure he doesn't mess up with data that contains in them by pointers. (Its all user's responsibility) Tho its not forbidden
+ * to change fields of ref object, but it's better for them to be constants at all. Also, their destruction is unneded*/
 
 
 typedef void * (*CopyFunction)(void * dest, const void * src, size_t n);
@@ -176,6 +180,8 @@ DECLARE_SIMPLE_TYPE(bool, Bool)
 DECLARE_SIMPLE_TYPE(double, Double)
 DECLARE_SIMPLE_TYPE(long long int, LongLongInt)
 DECLARE_SIMPLE_TYPE(float, Float)
+DECLARE_SIMPLE_TYPE(double complex, Complex)
+typedef double complex Complex;
 
 CREATE_UNIQUE_POINTER(int*, Int)
 

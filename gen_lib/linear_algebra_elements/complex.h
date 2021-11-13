@@ -6,45 +6,47 @@
 #include "vector_algebraic_addendum.h"
 
 #define euler 2.718281828
-
-struct Complex_struct
+//turned out that complex.h exist. don't wanna delete this maybe will be useful  one day
+struct MyComplex_struct
 {
     double a, b;
 };
-typedef struct Complex_struct Complex;
+typedef struct MyComplex_struct MyComplex;
 
-Complex defaultComplex(double a, double b);
+MyComplex defaultMyComplex(double a, double b);
 
-DECLARE_SIMPLE_TYPE(Complex, Complex);
+DECLARE_SIMPLE_TYPE(MyComplex, MyComplex);
 
-void addToComplex(Complex * a, const Complex * b);
-Complex addComplex(const Complex * a, const Complex * b);
-void subToComplex(Complex * a, const Complex * b);
-Complex subComplex(const Complex * a, const Complex * b);
-Complex multComplex(const Complex * a, const Complex * b);
-void multToComplex(Complex * a, const Complex * b);
-Complex divComplex(const Complex * a, const Complex * b);
-void divToComplex(Complex * a, const Complex * b);
+void addToMyComplex(MyComplex * a, const MyComplex * b);
+MyComplex addMyComplex(const MyComplex * a, const MyComplex * b);
+void subToMyComplex(MyComplex * a, const MyComplex * b);
+MyComplex subMyComplex(const MyComplex * a, const MyComplex * b);
+MyComplex multMyComplex(const MyComplex * a, const MyComplex * b);
+void multToMyComplex(MyComplex * a, const MyComplex * b);
+MyComplex divMyComplex(const MyComplex * a, const MyComplex * b);
+void divToMyComplex(MyComplex * a, const MyComplex * b);
 //since complex have two indistinguishable roots, that function is invalid (need to arithm declaration)
-Complex sqrtComplex(const Complex * a);
-Complex minusComplex(const Complex * a);
-Complex nullComplex();
-Complex unitComplex();
+MyComplex sqrtMyComplex(const MyComplex * a);
+MyComplex minusMyComplex(const MyComplex * a);
+MyComplex nullMyComplex();
+MyComplex unitMyComplex();
 
-void printfComplex(const Complex * com);
+void printfMyComplex(const MyComplex * com);
 
-bool equalComplex(const Complex * a, const Complex * b);
 
-GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(Complex, Complex, equal, bool)
 
-DECLARE_TYPE_AS_ARITHMETIC(Complex, Complex);
-MAKE_VECTOR(Complex, Complex)
+bool equalMyComplex(const MyComplex * a, const MyComplex * b);
 
-MAKE_VECTOR_ALGEBRAIC_ADDENDUM(Complex, Complex);
+GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(MyComplex, MyComplex, equal, bool)
 
-Complex exponentComplex(const Complex * a);
+DECLARE_TYPE_AS_ARITHMETIC(MyComplex, MyComplex);
+MAKE_VECTOR(MyComplex, MyComplex)
 
-GENERATE_RIGHT_VALUE_UNARY_EXTENSIONS(Complex, Complex, exponent, Complex);
+MAKE_VECTOR_ALGEBRAIC_ADDENDUM(MyComplex, MyComplex);
+
+MyComplex exponentMyComplex(const MyComplex * a);
+
+GENERATE_RIGHT_VALUE_UNARY_EXTENSIONS(MyComplex, MyComplex, exponent, MyComplex);
 
 
 #endif //FIBONACHY_NIM_COMPLEX_H

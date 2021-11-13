@@ -1,46 +1,65 @@
 #include <stdio.h>
 #include "vector/algorithms.h"
 #include "fourier.h"
+#include "math.h"
 #define Pi M_PI
-DiscreteFourier naiveDiscreteFourierTransform(const Polynom * polynom)
+static DiscreteFourier insideNaiveDiscreteFourierTransform(const VectorComplex * polynom, int vec_start, int step, int N, bool inverse);
+DiscreteFourier cooleyTukey(const VectorComplex * polynom, int vec_start, int step, int N, bool inverse);
+
+static DiscreteFourier insideDiscreteFourierTransform(const VectorComplex * vec, int vec_start, int step,  int N, bool inverse)
 {
-    int N = polynom->deg + 1;
-    DiscreteFourier res = defaultVectorComplexCalloc(N, nullComplex());
-    double exp_mult = -2*Pi / N;
+    //really seems that it is the fastest
+    if (N <= 2)
+        return insideNaiveDiscreteFourierTransform(vec, vec_start, step, N, inverse);
+
+
+    int next_pow = findNextPower(N);
+    if (next_pow == N)
+        return cooleyTukey(vec, vec_start, step, N, inverse);
+    assert(vec_start == 0 && step == 1);
+    VectorComplex counted_polynom = copyVectorComplex(vec);
+    counted_polynom.resize(&counted_polynom, next_pow);
+    for (int i = N; i < next_pow; ++i)
+        *atVectorComplex(&counted_polynom, i) = 0;
+    DiscreteFourier res = cooleyTukey(&counted_polynom, vec_start, step, next_pow, inverse);
+    res.resize(&res, N);
+
+    destructVectorComplex(&counted_polynom);
+    return res;
+}
+
+static DiscreteFourier insideNaiveDiscreteFourierTransform(const VectorComplex * polynom, int vec_start, int step, int N, bool inverse)
+{
+    DiscreteFourier res = defaultVectorComplexCalloc(N, 0);
+    double exp_mult = (inverse ? 1 : -1) * 2*Pi / N;
     for (int k = 0; k < N; ++k)
     {
         for (int n = 0; n < N; ++n)
         {
-            addToComplexRV(atVectorComplex(&res, k),
-                         multComplexRV(exponentComplexRV(defaultComplex(0, exp_mult * k * n)),
-                                       defaultComplex((double)*catPolynom(polynom, n), 0)));
+            *atVectorComplex(&res, k) += *catVectorComplex(polynom, vec_start + n * step) * cexp(exp_mult * k * n * I);
         }
     }
     return res;
 }
 
-DiscreteFourier cooleyTukey(const Polynom * polynom)
+DiscreteFourier cooleyTukey(const VectorComplex * polynom, int vec_start, int step, int N, bool inverse)
 {
-    int N = polynom->deg + 1;
     assert(N % 2 == 0);
     int N_half = N / 2;
-    PolynomRef e_polynom = defaultSparcePolynomRef(N_half - 1, polynom->polynom, 2 * polynom->step);
-    PolynomRef o_polynom = defaultSparcePolynomRef(N_half - 1, polynom->polynom + 1 * polynom->step, 2 * polynom->step);
-    DiscreteFourier E = countDiscreteFourierTransform(&e_polynom),
-                    O = countDiscreteFourierTransform(&o_polynom);
+    VectorRefComplex e_polynom = *polynom;
+    VectorRefComplex o_polynom = *polynom;
+    DiscreteFourier E = insideDiscreteFourierTransform(&e_polynom, vec_start, step * 2, N_half, inverse),
+                    O = insideDiscreteFourierTransform(&o_polynom, vec_start + step, step * 2, N_half, inverse);
 
-    double exp_mult = -2*Pi / N;
-    DiscreteFourier res = defaultVectorComplexCalloc(N, nullComplex());
+    double exp_mult = (inverse ? 1 : -1) * 2*Pi / N;
+    DiscreteFourier res = defaultVectorComplexCalloc(N, 0);
     for (int k = 0; k <N_half; ++k)
     {
-        Complex O_mult = exponentComplexRV(defaultComplex(0, exp_mult * k));
-        Complex O_multed = multComplex(&O_mult, atVectorComplex(&O, k));
+        Complex O_multed = cexp(exp_mult * k * I) * *atVectorComplex(&O, k);
 
-        *atVectorComplex(&res, k) = addComplex(atVectorComplex(&E, k), &O_multed);
+        *atVectorComplex(&res, k) = *atVectorComplex(&E, k) + O_multed;
+        *atVectorComplex(&res, k + N_half) = *atVectorComplex(&E, k) - O_multed;
 
-        *atVectorComplex(&res, k + N_half) = subComplex(atVectorComplex(&E, k), &O_multed);
-
-        destructComplex(&O_mult);
         destructComplex(&O_multed);
     }
 
@@ -48,32 +67,36 @@ DiscreteFourier cooleyTukey(const Polynom * polynom)
     destructVectorComplex(&O);
 
     return res;
-
 }
 
 
 
-
-DiscreteFourier countDiscreteFourierTransform(const Polynom * polynom)
+DiscreteFourier naiveDiscreteFourierTransformForPolynom(const Polynom * polynom)
 {
-    int N = polynom->deg + 1;
-    //really seems that it is the fastest
-    if (N <= 2)
-        return naiveDiscreteFourierTransform(polynom);
+    VectorComplex vec = defaultVectorComplexCalloc(polynom->deg + 1, 0);
+    for (int i = 0; i < polynom->deg + 1; ++i)
+        *atVectorComplex(&vec, i) = (double complex) *catPolynom(polynom, i);
+    DiscreteFourier res = insideNaiveDiscreteFourierTransform(&vec, 0, 1, vectorComplexGetSize(&vec), false);
 
+    destructVectorComplex(&vec);
+    return res;
+}
+DiscreteFourier discreteFourierTransformForPolynom(const Polynom * polynom)
+{
+    VectorComplex vec = defaultVectorComplexCalloc(polynom->deg + 1, 0);
+    for (int i = 0; i < polynom->deg + 1; ++i)
+        *atVectorComplex(&vec, i) = (double complex) *catPolynom(polynom, i);
 
-    int next_pow = findNextPower(N);
-    if (next_pow == N)
-        return cooleyTukey(polynom);
+    DiscreteFourier res = insideDiscreteFourierTransform(&vec, 0, 1, vectorComplexGetSize(&vec), false);
 
-    Polynom counted_polynom = increasedPolynom(polynom, next_pow - 1);
-    DiscreteFourier res = cooleyTukey(&counted_polynom);
-    res.resize(&res, N);
-
-    destructPolynom(&counted_polynom);
+    destructVectorComplex(&vec);
     return res;
 
 }
+
+
+
+
 
 bool equalDiscreteFourier(const DiscreteFourier * a, const DiscreteFourier * b)
 {
@@ -92,7 +115,74 @@ void printfDiscreteFourier(const DiscreteFourier * fourier)
     for (int i = 0; i < fourier->getSize(fourier); ++i)
     {
         printfComplex(catVectorComplex(fourier, i));
-        printf("; ");
+        printf(" ");
     }
     printf("\n");
+}
+
+Polynom inverseFourierTransformForPolynom(const DiscreteFourier * fourier)
+{
+    int N = vectorComplexGetSize(fourier);
+    int next_pow = findNextPower(N);
+    if (next_pow != N)
+    {
+        DiscreteFourier cop = copyVectorComplex(fourier);
+        cop.resize(&cop, next_pow);
+        for (int i = N; i < next_pow; ++i)
+            *atVectorComplex(&cop, i) = 0;
+        Polynom res = inverseFourierTransformForPolynom(&cop);
+        destructVectorComplex(&cop);
+        return res;
+    }
+    Polynom res = defaultPolynom(fourier->getSize(fourier) - 1);
+    DiscreteFourier inv_res = insideDiscreteFourierTransform(fourier, 0, 1, N, true);
+    for (int i = 0; i < N; ++i)
+    {
+        //assert(equal(cimag(*atVectorComplex(&inv_res, i)), 0));
+        *atPolynom(&res, i) = round(creal(*atVectorComplex(&inv_res, i)) / N);
+    }
+    destructVectorComplex(&inv_res);
+    return res;
+}
+VectorComplex inverseFourierTransform(const DiscreteFourier * fourier)
+{
+    int N = vectorComplexGetSize(fourier);
+    int next_pow = findNextPower(N);
+    if (next_pow != N)
+    {
+        DiscreteFourier cop = copyVectorComplex(fourier);
+        cop.resize(&cop, next_pow);
+        for (int i = N; i < next_pow; ++i)
+            *atVectorComplex(&cop, i) = 0;
+        VectorComplex res = inverseFourierTransform(&cop);
+        destructVectorComplex(&cop);
+        return res;
+    }
+    DiscreteFourier res = insideDiscreteFourierTransform(fourier, 0, 1, N, true);
+    for (int i = 0; i < N; ++i)
+    {
+        *atVectorComplex(&res, i) /= N;
+    }
+    return res;
+}
+DiscreteFourier discreteFourierTransform(const VectorComplex * vec)
+{
+    return insideDiscreteFourierTransform(vec, 0, 1, vectorComplexGetSize(vec), false);
+}
+DiscreteFourier naiveDiscreteFourierTransform(const VectorComplex * vec)
+{
+    return insideNaiveDiscreteFourierTransform(vec, 0, 1, vectorComplexGetSize(vec), false);
+}
+
+complex double* dft(complex double const* arr, size_t len)
+{
+    VectorRefComplex vec = wrapVectorComplex(arr, len);
+    DiscreteFourier res = discreteFourierTransform(&vec);
+    return vectorComplexDissolveIntoPointer(&res);
+}
+complex double* inverseDft(complex double const* arr, size_t len)
+{
+    VectorRefComplex vec = wrapVectorComplex(arr, len);
+    DiscreteFourier res = inverseFourierTransform(&vec);
+    return vectorComplexDissolveIntoPointer(&res);
 }

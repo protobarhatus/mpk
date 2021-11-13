@@ -1,3 +1,5 @@
+#include <math.h>
+#include <user_interacts/user_interactions.h>
 #include "algorithms.h"
 #include "stdio.h"
 
@@ -119,4 +121,43 @@ int findNextPower(int n)
                 return powers_of_two[i];
     }
     return powers_of_two[15];
+}
+void printfComplex(const complex double *d)
+{
+    double complex c = *d;
+    if (fabs(cimag(c)) <= 1e-10)
+        c = creal(c);
+    if (cimag(c) >= 0)
+        printf("%g+%gi", creal(c), cimag(c));
+    else
+        printf("%g%gi", creal(c), cimag(c));
+}
+Complex scanfComplex()
+{
+    double r, c;
+    char s;
+    scanf("%lf", &r);
+    s = getchar();
+    scanf("%lf", &c);
+    //i
+    getchar();
+    if (s == '+')
+        return r + I*c;
+    return r - I*c;
+}
+VectorComplex scanfVectorComplex()
+{
+    int len = getValue(stdin);
+    VectorComplex res = defaultVectorComplexCalloc(len, 0);
+    for (int i = 0; i < len; ++i)
+        *atVectorComplex(&res, i) = scanfComplex();
+    return res;
+}
+bool equalComplex(const complex double *a, const complex double *b)
+{
+    return fabs(creal(*a) - creal(*b)) <= 1e-5 && fabs(cimag(*a) - cimag(*b)) <= 1e-5;
+}
+bool equal(double a, double b)
+{
+    return fabs(a - b) <= 1e-5;
 }

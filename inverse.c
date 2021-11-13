@@ -49,16 +49,15 @@ int main(int argc, char *argv[])
         testRandom(getValue(stdin));
         return 0;
     }
-    Polynom pol = scanfRandPolynom(10000000);
-    DiscreteFourier f = discreteFourierTransformForPolynom(&pol);
-    printf("Done");
-    getchar();
-   // Polynom pol = scanfPolynom(stdin);
-    VectorComplex  input = scanfVectorComplex();
-    DiscreteFourier res = discreteFourierTransform(&input);
+
+    // Polynom pol = scanfPolynom(stdin);
+    DiscreteFourier  input = scanfVectorComplex();
+    VectorComplex res = inverseFourierTransform(&input);
 
     printfDiscreteFourier(&res);
 
     destructVectorComplex(&input);
     destructVectorComplex(&res);
 }
+
+

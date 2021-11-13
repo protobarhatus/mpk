@@ -12,14 +12,15 @@
 
 struct vector_struct
 {
-    //user must provide destructor function somewhere if he declares any vectors by MAKE_VEC macro
     void * vec;
     int size;
     int allocated_size;
 
     const TypePresenterContainer * type;
+
 };
 typedef struct vector_struct Vector;
+typedef Vector VectorRef;
 
 
 //it will copy all values except first, which will be moved.
@@ -31,6 +32,7 @@ Vector defaultVectorCalloc(int size, void * def_value, const TypePresenterContai
 Vector * callocDefaultVector(int size, void * def_value, const TypePresenterContainer * type);
 
 Vector defaultVectorWithStrictSize(int size, void * def_value, const TypePresenterContainer * type);
+VectorRef wrapVector(const void * vec, int size, const TypePresenterContainer  * type);
 
 
 Vector emptyVector(const TypePresenterContainer * type);
@@ -103,7 +105,8 @@ void freeBehind(void ** data);
     void (*popBack)(struct Vector##UCN##_struct * obj);                                                                                                                \
     void (*resize)(struct Vector##UCN##_struct * obj, int new_size);\
 } ;                                                                                                     \
-typedef struct Vector##UCN##_struct Vector##UCN ;                                                                                                                      \
+typedef struct Vector##UCN##_struct Vector##UCN ;                                       \
+typedef Vector##UCN Vector##Ref##UCN;\
                                                                                                                                                                        \
  DECLARE_STRUCT_INLINE_TYPE(Vector##UCN, Vector##UCN)  ;                                                                                                 \
      /*guess i dont need it*/                                                                                                                                                        \
@@ -211,9 +214,20 @@ static inline void deleteVector##UCN(Vector##UCN ** obj) {                      
     destructVector(&(*obj)->vec);                                                                                                               \
     free(*obj);                                                             \
  }                                                                                      \
-
-
-
+static inline VectorRef##UCN wrapVector##UCN(const TN * arr, int n)                                                                                        \
+{\
+    VectorRef##UCN res;                                                               \
+    res.vec = wrapVector((const void*)arr, n, TYPE_##UCN());                                          \
+    assignFunctionsVector##UCN(&res);                                                   \
+    return res;\
+}                                                                                       \
+static inline TN * vector##UCN##DissolveIntoPointer(VectorRef##UCN * vec)                            \
+{\
+    vec->vec.size = -1;                                                                 \
+    vec->vec.allocated_size = -1;                                                       \
+    vec->vec.type = NULL;                                                               \
+    return vec->vec.vec;\
+}
 
 
 

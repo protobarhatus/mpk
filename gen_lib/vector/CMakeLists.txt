@@ -15,4 +15,6 @@ set(VECTOR vector/arrayint.c
         vector/vectorfuncs.h
         vector/algorithms.c
         vector/algorithms.h
+        vector/sparse_vector.c
+        vector/sparse_vector.h
 )

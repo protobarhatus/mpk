@@ -14,6 +14,7 @@ MAKE_VECTOR(int, Int);
 MAKE_VECTOR(char, Char);
 MAKE_VECTOR(double, Double);
 MAKE_VECTOR(bool, Bool);
+MAKE_VECTOR(double complex, Complex)
 
 
 MAKE_VECTOR(VectorInt, VectorInt);

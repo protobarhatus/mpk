@@ -27,7 +27,14 @@ static inline bool areStringsEquall(const char * a, const char * b)
 {
     return strcmp(a, b) == 0;
 }
+//idk where to place it
+void printfComplex(const complex double *c);
+Complex scanfComplex();
+VectorComplex scanfVectorComplex();
 
+bool equalComplex(const complex double *a, const complex double *b);
+
+bool equal(double a, double b);
 
 #define MAKE_PAIR(TN, UCN) \
 struct Pair##UCN##_struct                           \

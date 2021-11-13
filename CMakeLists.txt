@@ -17,6 +17,9 @@ add_executable(karatsuba
 add_executable(naive naive.c ${LIB} Polynom/polynom.h Polynom/polynom.c)
 add_executable(toom_cook mpk_lvl2.c ${LIB} Polynom/polynom.h Polynom/polynom.c)
 add_executable(fourier ${LIB} Polynom/polynom.h Polynom/polynom.c Polynom/fourier.c Polynom/fourier.h fourier.c)
+add_executable(inverse ${LIB} Polynom/polynom.h Polynom/polynom.c Polynom/fourier.c Polynom/fourier.h inverse.c)
+add_executable(schonhage_strassen ${LIB} Polynom/polynom.h Polynom/polynom.c Polynom/fourier.c Polynom/fourier.h schonhage_strassen.c)
+add_executable(time_comparison ${LIB} Polynom/polynom.h Polynom/polynom.c Polynom/fourier.c Polynom/fourier.h time_comparisong.c)
 
 include_directories(gen_lib)
 
@@ -24,3 +27,6 @@ target_link_libraries(karatsuba m)
 target_link_libraries(naive m)
 target_link_libraries(toom_cook m)
 target_link_libraries(fourier m)
+target_link_libraries(inverse m)
+target_link_libraries(schonhage_strassen m)
+target_link_libraries(time_comparison m)
