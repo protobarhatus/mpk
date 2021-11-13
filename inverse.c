@@ -12,22 +12,22 @@ bool testRandomFourier(int size)
         *atPolynom(&pol, i) = rand() % 40 - 20;
     }
 
-    DiscreteFourier naive = naiveDiscreteFourierTransformForPolynom(&pol);
-    DiscreteFourier cooley = discreteFourierTransformForPolynom(&pol);
+    DiscreteFourier fourier = discreteFourierTransformForPolynom(&pol);
+    Polynom res = inverseFourierTransformForPolynom(&fourier);
 
-    if (!equalDiscreteFourier(&naive, &cooley))
+    if (!areEqualPolynom(&pol, &res))
     {
         printf("ERROR\n");
-        printf("naive:--------\n");
-        printfDiscreteFourier(&naive);
-        printf("cooley:-------\n");
-        printfDiscreteFourier(&cooley);
+        printf("orig:--------\n");
+        printfPolynom(&pol);
+        printf("res:-------\n");
+        printfPolynom(&res);
         getchar();
         return false;
     }
     destructPolynom(&pol);
-    destructVectorComplex(&naive);
-    destructVectorComplex(&cooley);
+    destructPolynom(&res);
+    destructVectorComplex(&fourier);
     return true;
 }
 
