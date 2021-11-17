@@ -14,6 +14,11 @@ struct _IO_FILE;
 typedef struct _IO_FILE FILE;
 int getValue(FILE * input);
 
+int scanfInt();
+void printfInt(const int * val);
+
+double scanfDouble();
+void printfDouble(const double * val);
 
 
 #endif //GREEKLATINGSQ_USER_INTERACTIONS_H

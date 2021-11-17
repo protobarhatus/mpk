@@ -29,5 +29,12 @@ int main()
 
     //in case if compilator decides to erase r1,r2,r3
     printf("%d %d %d", r1.deg, r2.deg, r3.deg);
+
+
+    destructPolynom(&p1);
+    destructPolynom(&p2);
+    destructPolynom(&r1);
+    destructPolynom(&r2);
+    destructPolynom(&r3);
 }
 

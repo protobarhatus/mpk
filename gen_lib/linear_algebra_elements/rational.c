@@ -115,3 +115,11 @@ bool isNull(const Rational * r)
 {
     return r->num == 0 && r->denom != 0;
 }
+Rational scanfRational()
+{
+    Rational res;
+    scanf("%lld", &res.num);
+    getchar();
+    scanf("%lld", &res.denom);
+    return res;
+}

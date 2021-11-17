@@ -1,0 +1,1 @@
+set(POLYNOM Polynom/fourier.c Polynom/fourier.h Polynom/polynom.c Polynom/polynom.h)

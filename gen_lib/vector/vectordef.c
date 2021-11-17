@@ -46,6 +46,19 @@ VectorRef wrapVector(const void * vec, int size, const TypePresenterContainer  *
     return res;
 }
 
+bool equalVector(const Vector * a, const Vector * b)
+{
+    assert(areSameTypes(a->type, b->type));
+    if (a->size != b->size)
+        return false;
+    for (int i = 0; i < a->size; ++i)
+    {
+        if (!a->type->equal_function(catVector(a, i), catVector(b, i), a->type->element_size))
+            return false;
+    }
+    return true;
+}
+
 Vector * callocDefaultVector(int size, void * def_value, const TypePresenterContainer * type)
 {
     Vector *obj = (Vector*)calloc(1, sizeof(Vector));

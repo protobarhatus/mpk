@@ -132,6 +132,27 @@ void printfComplex(const complex double *d)
     else
         printf("%g%gi", creal(c), cimag(c));
 }
+
+int power(int a, int n)
+{
+    if (n == 0)
+        return 1;
+    if (n == 1)
+        return a;
+    if (n % 2 == 0)
+    {
+        int mr = power(a, n / 2);
+        return mr * mr;
+    }
+    return power(a, n - 1) * a;
+}
+int powerOfTwo(int n)
+{
+    assert(n >= 0 && n <= 30);
+    return powers_of_two[n];
+}
+
+
 Complex scanfComplex()
 {
     double r, c;

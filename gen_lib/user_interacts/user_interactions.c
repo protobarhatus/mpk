@@ -31,3 +31,23 @@ int getValue(FILE * in)
     }
     return num;
 }
+
+int scanfInt()
+{
+    return getValue(stdin);
+}
+void printfInt(const int * val)
+{
+    printf("%d ", *val);
+}
+
+double scanfDouble()
+{
+    double r;
+    scanf("%lg", &r);
+    return r;
+}
+void printfDouble(const double * val)
+{
+    printf("%lg ", *val);
+}

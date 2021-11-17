@@ -40,6 +40,7 @@ void testRandom(int len)
     }
 }
 
+
 int main(int argc, char *argv[])
 {
     setbuf(stdout, 0);

@@ -3,6 +3,11 @@
 
 #include "polynom.h"
 #include "vector/vector.h"
+/*this header presents functions for computing dft or inverse dft of sequence.
+ * functions that dont have "naive" prefix use Cooley-Tookey algorithm.
+ * if sequence length is not a power of two then in Cooley-Tookey algorithm it will be completed up to nearest power with zeroes
+ * note that in that case result will differ from naive functions
+ * */
 
 //now its on standart double complex
 typedef VectorComplex DiscreteFourier;

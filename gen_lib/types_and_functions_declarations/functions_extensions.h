@@ -5,6 +5,14 @@
 //its veery inconvenient to do arithmetic without this overloads because have to make buffers for all subcomputatons
 //to avoid memory leaks
 
+#define GENERATE_RIGHT_VALUE_UNARY_EXTENSIONS_TO_VOID_FUNC(TN, UCN, FUNC) \
+static inline void FUNC##UCN##RV(TN a)                                    \
+{\
+    FUNC##UCN(&a);                                                        \
+    destruct##UCN(&a);\
+}
+
+
 #define GENERATE_RIGHT_VALUE_UNARY_EXTENSIONS(TN, UCN, FUNC, RETV) \
 static inline RETV FUNC##UCN##RV(TN a)                         \
 {                                                            \

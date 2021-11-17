@@ -32,7 +32,10 @@ void printfComplex(const complex double *c);
 Complex scanfComplex();
 VectorComplex scanfVectorComplex();
 
-bool equalComplex(const complex double *a, const complex double *b);
+int power(int a, int n);
+int powerOfTwo(int n);
+
+//bool equalComplex(const complex double *a, const complex double *b);
 
 bool equal(double a, double b);
 
@@ -63,8 +66,10 @@ static inline Pair##UCN movePair##UCN(Pair##UCN * cop) {          \
 static inline void destructPair##UCN(Pair##UCN * obj) {           \
     destruct##UCN(&obj->first);                     \
     destruct##UCN(&obj->second);\
+}                          \
+static inline bool equalPair##UCN(const Pair##UCN * a, const Pair##UCN * b) { \
+    return equal##UCN(&a->first, &b->first) && equal##UCN(&a->second, &b->second);                           \
 }                           \
-                           \
 \
 DECLARE_STRUCT_INLINE_TYPE(Pair##UCN, Pair##UCN);
 

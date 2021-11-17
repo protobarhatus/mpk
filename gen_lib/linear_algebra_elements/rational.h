@@ -4,6 +4,9 @@
 #include "../types_and_functions_declarations/arithmetic_type_declaration.h"
 #include "../vector/vector.h"
 #include "vector_algebraic_addendum.h"
+#include "matrix.h"
+#include "../types_and_functions_declarations/general_type.h"
+
 struct Rational_struct
 {
     long long int num, denom;
@@ -31,6 +34,9 @@ Rational sqrtRational(const Rational * a);
 Rational minusRational(const Rational * a);
 
 void printfRational(const Rational * rat);
+Rational scanfRational();
+
+DECLARE_IO_TYPE(Rational, Rational);
 
 bool isNull(const Rational * r);
 
@@ -41,4 +47,8 @@ MAKE_VECTOR(Rational, Rational);
 MAKE_VECTOR(VectorRational, VectorRational);
 
 MAKE_VECTOR_ALGEBRAIC_ADDENDUM(Rational, Rational);
+
+MAKE_GENERAL_TYPE_TRANSLATION_FUNCTIONS(Rational, Rational)
+
+MAKE_MATRIX(Rational, Rational);
 #endif //MPK_RATIONAL_H

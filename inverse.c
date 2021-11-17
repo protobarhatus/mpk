@@ -15,7 +15,7 @@ bool testRandomFourier(int size)
     DiscreteFourier fourier = discreteFourierTransformForPolynom(&pol);
     Polynom res = inverseFourierTransformForPolynom(&fourier);
 
-    if (!areEqualPolynom(&pol, &res))
+    if (!equalPolynom(&pol, &res))
     {
         printf("ERROR\n");
         printf("orig:--------\n");

@@ -93,7 +93,7 @@ Polynom toomCookMultiplication(const Polynom * a, const Polynom * b);
 
 void printfPolynom(const Polynom * p);
 Polynom scanfPolynom(FILE *input);
-bool areEqualPolynom(const Polynom * a, const Polynom * b);
+bool equalPolynom(const Polynom * a, const Polynom * b);
 
 Polynom karatsuba(const Polynom * ap, const Polynom * bp);
 

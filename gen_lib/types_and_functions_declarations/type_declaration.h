@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <complex.h>
+#include "functions_extensions.h"
 
 /*to be used in generalized structures, type must be declared
  * declaration is creating a function named TYPE_<TypeNameInUpperCamelCase> that returns pointer to container variable
@@ -41,6 +42,7 @@
 typedef void * (*CopyFunction)(void * dest, const void * src, size_t n);
 typedef void * (*MoveFunction)(void * dest, void * src, size_t n);
 typedef void (*DestructFunction)(void * el);
+typedef bool (*ComparisonFunction)(const void * a, const void * b, int num);
 
 //is created as global variable on every type in its macro def
 struct TypePresenterContainer_struct
@@ -48,6 +50,7 @@ struct TypePresenterContainer_struct
     CopyFunction cpy_func;
     DestructFunction destruct_function;
     MoveFunction move_function;
+    ComparisonFunction equal_function;
     int element_size;
     const char * type_name;
 };
@@ -57,7 +60,7 @@ typedef struct TypePresenterContainer_struct TypePresenterContainer;
 static inline void dummyDestructor(void * p) {}
 void* nonConstMemcpyDecl(void * dest, void * src, size_t n);
 
-
+bool standartMemcmpWrapping(const void * a, const void * b, int num);
 
 //If type TN is SIMPLE then it means that copy is completed by memcpy and destruction is unneded cause it don't need
 //to free some data inside
@@ -68,8 +71,8 @@ void* nonConstMemcpyDecl(void * dest, void * src, size_t n);
 //if its pointer on simple type then destroying is just calling free().
 //pointers on non simple types must provide appropriate cpyFunc and destrFunc
 //cpyFunc means FULL copy, (with copy of data behind inside pointers)
-#define SIMPLE_TYPE &memcpy, &dummyDestructor, &nonConstMemcpyDecl
-#define STRUCT_TYPE(UCN) &cpyFunc##UCN, &destrFunc##UCN, &moveFunc##UCN
+#define SIMPLE_TYPE &memcpy, &dummyDestructor, &nonConstMemcpyDecl, &standartMemcmpWrapping
+#define STRUCT_TYPE(UCN) &cpyFunc##UCN, &destrFunc##UCN, &moveFunc##UCN, &equalFunc##UCN
 
 
 #define DECLARE_TYPE(TN, UCN, FUNCS) \
@@ -78,13 +81,24 @@ void* nonConstMemcpyDecl(void * dest, void * src, size_t n);
         return &type;}
 
 //call every time with DECLARE_TYPE on SIMPLE_TYPE
-#define GEN_DUMMY_FUNCS_FOR_SIMPLE_TYPE(TN, UCN) static inline TN copy##UCN(TN const * b) {return *b;} static inline void destruct##UCN(TN * a) {} static inline TN move##UCN(TN * b) {return *b;}
+#define GEN_DUMMY_FUNCS_FOR_SIMPLE_TYPE(TN, UCN) \
+static inline TN copy##UCN(TN const * b) {return *b;} \
+static inline void destruct##UCN(TN * a) {} \
+static inline TN move##UCN(TN * b) {return *b;}  \
+
+
+//not for all simple types its correct
+#define GEN_SIMPLE_EQUAL_FUNCTION(TN, UCN) \
+static inline bool equal##UCN(TN const * a, TN const * b) {return memcmp(a, b, sizeof(TN)) == 0;}
+
 //call every time with DECLARE_TYPE on POINTER_TYPE, but since behaviour of POINTER type is more
 //like struct type (i.e. complex copy and destruct logic), after it have to call GEN_DUMMY_FUNCS_FOR_STRUCT_TYPE
 #define GEN_DUMMY_FUNCS_FOR_POINTER_TYPE(TN, UCN, STRUCT_BEHIND_PTR) \
     static inline TN copy##UCN(TN const  * src) {assert(false); return *src;};\
     static inline TN move##UCN(TN * src) { TN buff = *src; *src = NULL; return buff;}      \
-    static inline void destruct##UCN(TN * obj) {  destruct##STRUCT_BEHIND_PTR(*obj); free(*obj); *obj = NULL; }                                                      \
+    static inline void destruct##UCN(TN * obj) {  destruct##STRUCT_BEHIND_PTR(*obj); free(*obj); *obj = NULL; } \
+    /*since point of unique ptr is there is no pointers with same value, natural comparison is by value*/                                                                 \
+    static inline bool equal##UCN(TN const * a, TN const * b) { return equal##STRUCT_BEHIND_PTR(*a, *b);}\
 //call every time with DECLARE_TYPE on STRUCT_TYPE (here they are not actually dummy but naming should be consistent
 //the purpose of previous to is to have functions like copy##UCN for types that dont need it but
 //they are have to be declared and thus defined
@@ -109,11 +123,16 @@ void* nonConstMemcpyDecl(void * dest, void * src, size_t n);
       {                                                                                                                                                                \
            *((TN *)dest) = move##UCN((TN*)src);                                                                                                                        \
            return NULL;                                                             \
-      }
+      }                                          \
+      bool equal##UCN(TN const * a, TN const * b);\
+    static inline bool equalFunc##UCN(const void * a, const void * b, int num)\
+    {\
+        return equal##UCN((TN const *)a, (TN const *)b);\
+    }
 
       /*thats needed for auto generated structures like vectors, because they have to make all their functions inline*/
 #define GEN_DUMMY_FUNCS_FOR_STRUCT_TYPE_WITH_INLINE_DECLARATION(TN, UCN) \
-         static inline TN copy##UCN(const TN * src);                                                           \
+         static inline TN copy##UCN(TN const * src);                                                           \
    /*return value absolutely doesn't matter but it need to be the same type with memcpy*/                                                                                                 \
    static inline void* cpyFunc##UCN(void * dest, const void * src, size_t n)                                \
    {                                                                                                    \
@@ -131,7 +150,12 @@ void* nonConstMemcpyDecl(void * dest, void * src, size_t n);
       {                                                                                                                                                                \
            *((TN *)dest) = move##UCN((TN*)src);                                                                                                                        \
            return NULL;                                                             \
-      }
+      }\
+    static inline bool equal##UCN(TN const * a, TN const * b);\
+    static inline bool equalFunc##UCN(const void * a, const void * b, int num)\
+    {\
+        return equal##UCN((const TN*)a, (const TN*)b);\
+    }
 
 
 #define GEN_OTHER_USEFUL_FUNCS_TO_STRUCT_TYPE(TN, UCN) \
@@ -139,7 +163,9 @@ void* nonConstMemcpyDecl(void * dest, void * src, size_t n);
     {                                                  \
         destruct##UCN(a);                          \
         *a = b;\
-    }
+    }                                                  \
+/*GENERATE_RIGHT_VALUE_CUMULATIVE_UNARY_EXTENSIONS(TN, UCN, replace)*/                                                       \
+GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(TN, UCN, equal, bool)
 
 
 #define GEN_OTHER_USEFUL_FUNCS_TO_SIMPLE_TYPE(TN, UCN) \
@@ -153,9 +179,17 @@ void* nonConstMemcpyDecl(void * dest, void * src, size_t n);
 
 
 #define DECLARE_SIMPLE_TYPE(TN, UCN) \
+bool equal##UCN(TN const * a, TN const * b);                                     \
 DECLARE_TYPE(TN, UCN, SIMPLE_TYPE)   \
 GEN_DUMMY_FUNCS_FOR_SIMPLE_TYPE(TN, UCN) \
 GEN_OTHER_USEFUL_FUNCS_TO_SIMPLE_TYPE(TN, UCN)
+
+
+#define DECLARE_SIMPLE_TYPE_WITH_SIMPLE_EQUAL(TN, UCN) \
+static inline bool equal##UCN(TN const * a, TN const * b);\
+DECLARE_SIMPLE_TYPE(TN, UCN)\
+GEN_SIMPLE_EQUAL_FUNCTION(TN, UCN)
+
 
 #define DECLARE_STRUCT_TYPE(TN, UCN) \
 GEN_DUMMY_FUNCS_FOR_STRUCT_TYPE(TN, UCN)                                     \
@@ -174,12 +208,12 @@ GEN_DUMMY_FUNCS_FOR_STRUCT_TYPE_WITH_INLINE_DECLARATION(TN, UCN)\
 DECLARE_TYPE(TN, UCN, STRUCT_TYPE(UCN))     \
 GEN_OTHER_USEFUL_FUNCS_TO_STRUCT_TYPE(TN, UCN)
 
-DECLARE_SIMPLE_TYPE(int, Int)
-DECLARE_SIMPLE_TYPE(char, Char)
-DECLARE_SIMPLE_TYPE(bool, Bool)
-DECLARE_SIMPLE_TYPE(double, Double)
-DECLARE_SIMPLE_TYPE(long long int, LongLongInt)
-DECLARE_SIMPLE_TYPE(float, Float)
+DECLARE_SIMPLE_TYPE_WITH_SIMPLE_EQUAL(int, Int)
+DECLARE_SIMPLE_TYPE_WITH_SIMPLE_EQUAL(char, Char)
+DECLARE_SIMPLE_TYPE_WITH_SIMPLE_EQUAL(bool, Bool)
+DECLARE_SIMPLE_TYPE_WITH_SIMPLE_EQUAL(double, Double)
+DECLARE_SIMPLE_TYPE_WITH_SIMPLE_EQUAL(long long int, LongLongInt)
+DECLARE_SIMPLE_TYPE_WITH_SIMPLE_EQUAL(float, Float)
 DECLARE_SIMPLE_TYPE(double complex, Complex)
 typedef double complex Complex;
 
@@ -190,6 +224,7 @@ static inline bool areSameTypes(const TypePresenterContainer * a, const TypePres
 {
     return strcmp(a->type_name, b->type_name) == 0;
 }
+
 
 
 

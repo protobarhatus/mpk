@@ -16,7 +16,7 @@ void strictTest(int len)
         Polynom r = toomCookMultiplication(&p1, &p2);
         Polynom r1 = multPolynom(&p1, &p2);
         Polynom r3 = simpleMult(&p1, &p2);
-        if (!(areEqualPolynom(&r, &r1) && areEqualPolynom(&r, &r3)))
+        if (!(equalPolynom(&r, &r1) && equalPolynom(&r, &r3)))
         {
             printfPolynom(&p1);
             printf("----\n");
@@ -48,7 +48,7 @@ void test(int len)
 
         Polynom r = toomCookMultiplication(&p1, &p2);
         Polynom r1 = karatsuba(&p1, &p2);
-        if (!areEqualPolynom(&r, &r1))
+        if (!equalPolynom(&r, &r1))
         {
             printfPolynom(&p1);
             printf("----\n");

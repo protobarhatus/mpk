@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <vector/algorithms.h>
+#include <linear_algebra_elements/rational.h>
 #include "fourier.h"
 /* so, toom-cook algorithm requires splitting numbers into polynoms with base no more then k. Since i am
  * working with polynoms, i will assume these are numbers in base 2^(64) (2^(sizeof(long long int)*CHAR_BIT))
@@ -356,7 +357,7 @@ Polynom increasedPolynom(const Polynom * pol, int new_deg)
 }
 
 
-bool areEqualPolynom(const Polynom * a, const Polynom * b)
+bool equalPolynom(const Polynom * a, const Polynom * b)
 {
     if (a->deg != b->deg)
         return false;
@@ -389,17 +390,17 @@ void destructPolynomOfPolynoms(PolynomOfPolynoms * pol)
 
 
 
-static Matrix makeCoefficientMatrixForToomCook(int final_deg)
+static MatrixRational makeCoefficientMatrixForToomCook(int final_deg)
 {
-    Matrix coef_matrix = defaultMatrix(final_deg + 1, final_deg + 1, nullRational());
-    *coef_matrix.at(&coef_matrix, 0, 0) = unitRational();
+    MatrixRational coef_matrix = defaultMatrixRational(final_deg + 1, final_deg + 1, nullRational());
+    *atMatrixRationalEl(&coef_matrix, 0, 0) = unitRational();
     int point = 1;
     for (int i = 1; i < final_deg; ++i)
     {
         int cumul_point_power = 1;
         for (int j = 0; j <= final_deg; ++j)
         {
-            *coef_matrix.at(&coef_matrix, i, j) = defaultRational(cumul_point_power, 1);
+            *atMatrixRationalEl(&coef_matrix, i, j) = defaultRational(cumul_point_power, 1);
             cumul_point_power *= point;
         }
         if (point > 0)
@@ -407,7 +408,7 @@ static Matrix makeCoefficientMatrixForToomCook(int final_deg)
         else
             point = -point + 1;
     }
-    *coef_matrix.at(&coef_matrix, final_deg, final_deg) = unitRational();
+    *atMatrixRationalEl(&coef_matrix, final_deg, final_deg) = unitRational();
     return coef_matrix;
 }
 
@@ -518,6 +519,13 @@ void multPolynomRationalOn(PolynomRational * pol, Rational koe)
 
 GENERATE_RIGHT_VALUE_UNARY_EXTENSIONS(Polynom, Polynom, toPolynomRationalFrom, PolynomRational);
 
+bool equalPolynomRational(const PolynomRational * a, const PolynomRational * b)
+{
+    //i dont need it and dont want to write now
+    assert(false);
+    return false;
+}
+
 DECLARE_STRUCT_TYPE(PolynomRational, PolynomRational);
 
 MAKE_VECTOR(PolynomRational, PolynomRational);
@@ -557,7 +565,7 @@ static VectorPolynom multMatrixOfRationalOnVectorOfPolynoms(const Matrix * mat, 
         for (int j = 0; j < lines; ++j)
         {
             PolynomRational buff = copyPolynomRational(catVectorPolynomRational(vec, j));
-            multPolynomRationalOn(&buff, *catMatrixEl(mat, i, j));
+            multPolynomRationalOn(&buff, *catMatrixRationalEl(mat, i, j));
             addToPolynomRational(atVectorPolynomRational(&preresult, i), &buff);
             destructPolynomRational(&buff);
         }
@@ -712,7 +720,7 @@ void testPolynoms(FILE * input, Polynom (*mult_function)(const Polynom * a, cons
         Polynom b = scanfPolynom(input);
         Polynom res = scanfPolynom(input);
         Polynom mres = multPolynom(&a, &b);
-        if (areEqualPolynom(&res, &mres))
+        if (equalPolynom(&res, &mres))
         {
             printf("TEST %d: OK\n", i);
         }

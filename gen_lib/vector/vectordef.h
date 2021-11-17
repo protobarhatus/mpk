@@ -54,6 +54,8 @@ static inline void VectorPopBack(Vector * vec)
 void destructVector(Vector * obj);
 void deleteVector(Vector ** obj);
 
+bool equalVector(const Vector * a, const Vector * b);
+
 static inline void * atVector(Vector * obj, int i)
 {
     assert(obj->size > i);
@@ -117,7 +119,10 @@ typedef Vector##UCN Vector##Ref##UCN;\
         return NULL;                                            \
    }                                                                                                                \
                                                                                                                     \
-                                                                                        \
+   static inline bool equalVector##UCN(const Vector##UCN * a, const Vector##UCN * b)    \
+   {                                                                                    \
+        return equalVector(&a->vec, &b->vec);\
+   }\
                                                                                         \
 static inline TN * atVector##UCN (Vector##UCN * obj, int i) {                                                   \
     return ( TN *)atVector(&obj->vec, i);                                                                                        \

@@ -100,7 +100,7 @@ DiscreteFourier discreteFourierTransformForPolynom(const Polynom * polynom)
 
 bool equalDiscreteFourier(const DiscreteFourier * a, const DiscreteFourier * b)
 {
-
+    equal(1, 2);
     if (vectorComplexGetSize(a) != vectorComplexGetSize(b))
         return false;
     for (int i = 0; i < vectorComplexGetSize(a); ++i)
