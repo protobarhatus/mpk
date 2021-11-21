@@ -182,14 +182,14 @@ GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(TN, UCN, equal, bool)
 bool equal##UCN(TN const * a, TN const * b);                                     \
 DECLARE_TYPE(TN, UCN, SIMPLE_TYPE)   \
 GEN_DUMMY_FUNCS_FOR_SIMPLE_TYPE(TN, UCN) \
-GEN_OTHER_USEFUL_FUNCS_TO_SIMPLE_TYPE(TN, UCN)
-
+GEN_OTHER_USEFUL_FUNCS_TO_SIMPLE_TYPE(TN, UCN)                                   \
+GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(TN, UCN, equal, bool)                                     \
+typedef TN UCN;
 
 #define DECLARE_SIMPLE_TYPE_WITH_SIMPLE_EQUAL(TN, UCN) \
 static inline bool equal##UCN(TN const * a, TN const * b);\
 DECLARE_SIMPLE_TYPE(TN, UCN)\
-GEN_SIMPLE_EQUAL_FUNCTION(TN, UCN)
-
+GEN_SIMPLE_EQUAL_FUNCTION(TN, UCN)                     \
 
 #define DECLARE_STRUCT_TYPE(TN, UCN) \
 GEN_DUMMY_FUNCS_FOR_STRUCT_TYPE(TN, UCN)                                     \

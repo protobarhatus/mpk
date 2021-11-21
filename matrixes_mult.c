@@ -27,32 +27,35 @@ int test()
         c = rand() % 70 + 2;
         w = rand() % 70 + 2;
         MatrixInt a = scanfRandMatrixInt(l, c), b = scanfRandMatrixInt(c, w);
-        MatrixInt r1 = naiveMultMatrix(&a, &b);
-        MatrixInt r2 = multMatrix(&a, &b);
-        if (!equalMatrix(&r1, &r2))
+        MatrixInt r1 = naiveMultMatrixInt(&a, &b);
+        MatrixInt r2 = multMatrixInt(&a, &b);
+        if (!equalMatrixInt(&r1, &r2))
         {
             printf("ERROR:\n");
             printf("A:\n");
-            printfMatrix(&a);
+            printfMatrixInt(&a);
             printf("B:\n");
-            printfMatrix(&b);
+            printfMatrixInt(&b);
             printf("Naive:\n");
-            printfMatrix(&r1);
+            printfMatrixInt(&r1);
             printf("Alg:\n");
-            printfMatrix(&r2);
+            printfMatrixInt(&r2);
         }
         else
             printf("TEST %d: OK\n", i);
-        destructMatrix(&a);
-        destructMatrix(&b);
-        destructMatrix(&r1);
-        destructMatrix(&r2);
+        destructMatrixInt(&a);
+        destructMatrixInt(&b);
+        destructMatrixInt(&r1);
+        destructMatrixInt(&r2);
     }
 }
 
 
 int main(int argc, char * argv[])
 {
+#ifdef debug
+    printf("Debug\n");
+#endif
     setbuf(stdout, 0);
     srand(time(0));
     if (argc > 1)
@@ -62,14 +65,17 @@ int main(int argc, char * argv[])
 
     }
 
-
+   // time_t t1, t2;
+   // t1 = clock();
     MatrixInt a = scanfMatrixInt(), b = scanfMatrixInt();
 
-    MatrixInt c = multMatrix(&a, &b);
+    MatrixInt c = multMatrixInt(&a, &b);
+   // t2 = clock();
+   // printf("Done %ld", t2 - t1);
 
-    printfMatrix(&c);
+    printfMatrixInt(&c);
 
-    destructMatrix(&a);
-    destructMatrix(&b);
-    destructMatrix(&c);
+    destructMatrixInt(&a);
+    destructMatrixInt(&b);
+    destructMatrixInt(&c);
 }

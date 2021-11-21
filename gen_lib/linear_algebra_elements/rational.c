@@ -14,6 +14,11 @@ long long int iabs(long long int denom)
     return denom > 0 ? denom : -denom;
 }
 
+bool isNullRational(const Rational * rat)
+{
+    return rat->num == 0;
+}
+
 Rational defaultRational(long long int num, long long int denom)
 {
     assert(denom != 0);

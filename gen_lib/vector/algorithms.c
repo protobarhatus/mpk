@@ -169,7 +169,7 @@ Complex scanfComplex()
 VectorComplex scanfVectorComplex()
 {
     int len = getValue(stdin);
-    VectorComplex res = defaultVectorComplexCalloc(len, 0);
+    VectorComplex res = defaultVectorComplex(len, 0);
     for (int i = 0; i < len; ++i)
         *atVectorComplex(&res, i) = scanfComplex();
     return res;

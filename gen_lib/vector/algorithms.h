@@ -36,6 +36,13 @@ int power(int a, int n);
 int powerOfTwo(int n);
 
 //bool equalComplex(const complex double *a, const complex double *b);
+enum Sign_enum
+{
+    PLUS,
+    MINUS,
+    STOP
+};
+typedef enum Sign_enum Sign;
 
 bool equal(double a, double b);
 
@@ -75,5 +82,5 @@ DECLARE_STRUCT_INLINE_TYPE(Pair##UCN, Pair##UCN);
 
 
 MAKE_PAIR(int, Int);
-MAKE_VECTOR(PairInt, PairInt);
+MAKE_VECTOR(PairInt);
 #endif //EXACT_COVER_ALGORITHMS_H

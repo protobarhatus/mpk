@@ -9,12 +9,11 @@ set(VECTOR vector/arrayint.c
         vector/Array2dInt.h
         vector/vector.c
         vector/vector.h
-        vector/vectordef.c
-        vector/vectordef.h
-        vector/vectorfuncs.c
-        vector/vectorfuncs.h
         vector/algorithms.c
         vector/algorithms.h
         vector/sparse_vector.c
         vector/sparse_vector.h
+        vector/vector_general_type.c
+        vector/vector_general_type.h
+        vector/vector_def.h
 )

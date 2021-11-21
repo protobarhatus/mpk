@@ -78,10 +78,7 @@ MyComplex exponentMyComplex(const MyComplex * a)
     double real_mult = pow(euler, a->a);
     return defaultMyComplex(real_mult * cos(a->b), real_mult * sin(a->b));
 }
-static bool equal(double a, double b)
-{
-    return fabs(a - b) <= 1e-3;
-}
+
 void printfMyComplex(const MyComplex * com)
 {
     if (equal(com->a, 0) && equal(com->b, 0))

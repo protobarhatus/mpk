@@ -1,5 +1,5 @@
 #include "polynom.h"
-#include "../gen_lib/linear_algebra_elements/matrix.h"
+#include "../gen_lib/linear_algebra_elements/matrix_general_type.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>

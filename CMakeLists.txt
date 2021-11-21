@@ -22,6 +22,7 @@ add_executable(inverse ${LIB} ${POLYNOM} inverse.c)
 add_executable(schonhage_strassen ${LIB} ${POLYNOM} schonhage_strassen.c)
 add_executable(time_comparison ${LIB} ${POLYNOM} time_comparisong.c)
 add_executable(matrixes_mult ${LIB} matrixes_mult.c)
+add_executable(naivetest naivtest.c ${LIb})
 
 include_directories(gen_lib)
 
@@ -33,3 +34,4 @@ target_link_libraries(inverse m)
 target_link_libraries(schonhage_strassen m)
 target_link_libraries(time_comparison m)
 target_link_libraries(matrixes_mult m)
+

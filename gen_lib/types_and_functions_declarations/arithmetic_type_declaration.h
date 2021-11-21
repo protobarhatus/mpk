@@ -123,8 +123,11 @@ static inline TN null##UCN() {                             \
 }                                                          \
 static inline TN unit##UCN() {                             \
     return 1;                                              \
+}                                                          \
+static inline bool isNull##UCN(const TN * obj)                         \
+{                                                          \
+    return equal##UCN##LVRV(obj, 0);                                      \
 }
-
 
 
 #define GENERATE_ARITHMETICAL_FUNCTIONS_FOR_STANDARD_TYPE(TN, UCN) \

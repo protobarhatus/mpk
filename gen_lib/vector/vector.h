@@ -1,27 +1,29 @@
 #ifndef EXACT_COVER_VECTOR_H
 #define EXACT_COVER_VECTOR_H
 
-#include "vectordef.h"
-#include "vectorfuncs.h"
+#include "vector_def.h"
 
 
-#define MAKE_VECTOR(TN, UCN) \
-MAKE_VEC(TN, UCN)            \
-MAKE_VECTOR_FUNCTIONS(TN, UCN)
 
 
-MAKE_VECTOR(int, Int);
-MAKE_VECTOR(char, Char);
-MAKE_VECTOR(double, Double);
-MAKE_VECTOR(bool, Bool);
-MAKE_VECTOR(double complex, Complex)
 
 
-MAKE_VECTOR(VectorInt, VectorInt);
+MAKE_VECTOR(Int);
+MAKE_VECTOR(Char);
+MAKE_VECTOR(Double);
+MAKE_VECTOR(Bool);
+MAKE_VECTOR(Complex)
 
-MAKE_VECTOR(VectorVectorInt, VectorVectorInt);
 
-MAKE_VECTOR(VectorBool, VectorBool)
+MAKE_VECTOR(VectorInt);
+
+MAKE_VECTOR(VectorVectorInt);
+
+MAKE_VECTOR(VectorBool)
+
+MAKE_VECTOR(GeneralType)
+
+MAKE_VECTOR(VectorGeneralType)
 
 
 

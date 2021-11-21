@@ -3,7 +3,7 @@
 #include "../types_and_functions_declarations/type_declaration.h"
 #include "../types_and_functions_declarations/arithmetic_type_declaration.h"
 #include "../vector/vector.h"
-#include "vector_algebraic_addendum.h"
+#include "vector_algebraic_addendum_def.h"
 #include "matrix.h"
 #include "../types_and_functions_declarations/general_type.h"
 
@@ -36,6 +36,10 @@ Rational minusRational(const Rational * a);
 void printfRational(const Rational * rat);
 Rational scanfRational();
 
+bool isNullRational(const Rational * rat);
+
+GENERATE_RIGHT_VALUE_UNARY_EXTENSIONS(Rational, Rational, isNull, bool);
+
 DECLARE_IO_TYPE(Rational, Rational);
 
 bool isNull(const Rational * r);
@@ -43,12 +47,14 @@ bool isNull(const Rational * r);
 DECLARE_TYPE_AS_ARITHMETIC(Rational, Rational);
 
 
-MAKE_VECTOR(Rational, Rational);
-MAKE_VECTOR(VectorRational, VectorRational);
+MAKE_VECTOR(Rational);
+MAKE_VECTOR(VectorRational);
 
-MAKE_VECTOR_ALGEBRAIC_ADDENDUM(Rational, Rational);
+#include "vector_algebraic_addendum.h"
+
+MAKE_VECTOR_ALGEBRAIC_ADDENDUM(Rational)
 
 MAKE_GENERAL_TYPE_TRANSLATION_FUNCTIONS(Rational, Rational)
 
-MAKE_MATRIX(Rational, Rational);
+MAKE_MATRIX(Rational);
 #endif //MPK_RATIONAL_H

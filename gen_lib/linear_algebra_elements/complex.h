@@ -37,12 +37,12 @@ void printfMyComplex(const MyComplex * com);
 
 bool equalMyComplex(const MyComplex * a, const MyComplex * b);
 
-GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(MyComplex, MyComplex, equal, bool)
+//GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(MyComplex, MyComplex, equal, bool)
 
 DECLARE_TYPE_AS_ARITHMETIC(MyComplex, MyComplex);
-MAKE_VECTOR(MyComplex, MyComplex)
+MAKE_VECTOR(MyComplex)
 
-MAKE_VECTOR_ALGEBRAIC_ADDENDUM(MyComplex, MyComplex);
+MAKE_VECTOR_ALGEBRAIC_ADDENDUM(MyComplex);
 
 MyComplex exponentMyComplex(const MyComplex * a);
 

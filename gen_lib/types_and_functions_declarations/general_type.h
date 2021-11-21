@@ -7,8 +7,9 @@
 #include "functions_extensions.h"
 #include "arithmetic_type_declaration.h"
 #include "complete_type_container.h"
-#include "../vector/vector.h"
-#include "../linear_algebra_elements/vector_algebraic_addendum.h"
+//#include "../vector/vector.h"
+//#include "../linear_algebra_elements/vector_algebraic_addendum.h"
+
 //null and unit functions meant to be without any arguments in arithmetic_type_declaration. But, since there is no way
 //to define a singular null or one value for different types, GeneralType has no way to make its value in these functions
 //so, nullGeneralType() and unitGeneralType() returns object in uncertainty state. It will resolve it state into normal value
@@ -108,9 +109,7 @@ MAKE_GENERAL_TYPE_TRANSLATION_FUNCTIONS(double, Double)
 
 
 
-MAKE_VECTOR(GeneralType, GeneralType);
-MAKE_VECTOR(VectorGeneralType, VectorGeneralType);
-MAKE_VECTOR_ALGEBRAIC_ADDENDUM(GeneralType, GeneralType);
+
 
 
 
