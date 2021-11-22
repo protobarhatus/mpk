@@ -7,10 +7,12 @@ include(gen_lib/linear_algebra_elements/CMakeLists.txt)
 include(gen_lib/types_and_functions_declarations/CMakeLists.txt)
 include(gen_lib/user_interacts/CMakeLists.txt)
 include(gen_lib/vector/CMakeLists.txt)
+include(gen_lib/standart_classes/CMakeLists.txt)
 
 
 list(TRANSFORM VECTOR PREPEND gen_lib/)
 list(TRANSFORM TYPES_AND_FUNCS PREPEND gen_lib/)
 list(TRANSFORM USER_INTERACTIONS PREPEND gen_lib/)
 list(TRANSFORM LINEAR_ALGEBRA PREPEND gen_lib/)
-set(LIB ${VECTOR} ${TYPES_AND_FUNCS} ${USER_INTERACTIONS} ${LINEAR_ALGEBRA})
+list(TRANSFORM STANDART_CLASSES PREPEND gen_lib/)
+set(LIB ${VECTOR} ${TYPES_AND_FUNCS} ${USER_INTERACTIONS} ${LINEAR_ALGEBRA} ${STANDART_CLASSES})

@@ -78,6 +78,7 @@ static inline GeneralType * atMatrixEl(Matrix * mat, int i, int j)
         assert (i < mat->allocked_lines && j < mat->allocked_columns);
         return  atVectorGeneralType(atVectorVectorGeneralType(&mat->matrix, i + mat->start_line), j + mat->start_column);
     }
+    assert(i < mat->lines && j < mat->columns);
     return &mat->matrix.vec[i].vec[j];
     return atVectorGeneralType(atVectorVectorGeneralType(&mat->matrix, i), j);
 }
@@ -89,6 +90,7 @@ static inline const GeneralType * catMatrixEl(const Matrix * mat, int i, int j)
             return mat->value_beyond_allocked_space_ptr;
         return  catVectorGeneralType(catVectorVectorGeneralType(&mat->matrix, i + mat->start_line), j + mat->start_column);
     }
+    assert(i < mat->lines && j < mat->columns);
     return &mat->matrix.vec[i].vec[j];
     return catVectorGeneralType(catVectorVectorGeneralType(&mat->matrix, i), j);
 }

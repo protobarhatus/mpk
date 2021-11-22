@@ -88,7 +88,8 @@ static inline UCN * atMatrix##UCN##El(Matrix##UCN * mat, int i, int j)          
     {                                                                                                                                               \
         assert (i < mat->allocked_lines && j < mat->allocked_columns);                                                                              \
         return  atVector##UCN(atVectorVector##UCN(&mat->matrix, i + mat->start_line), j + mat->start_column);                                       \
-    }                                                                                                                                               \
+    }                    \
+    \
     return &mat->matrix.vec[i].vec[j];                                                                                                              \
     return atVector##UCN(atVectorVector##UCN(&mat->matrix, i), j);                                                                                  \
 }                                                                                                                                                   \
