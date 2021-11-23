@@ -313,12 +313,12 @@ static inline Matrix##UCN naiveMultMatrix##UCN(const Matrix##UCN * a, const Matr
     Matrix##UCN res = defaultMatrix##UCN(a->lines, b->columns, null##UCN());                                                                                       \
     int a_lines = min(a->lines, a->allocked_lines);                                                                                                                \
     int b_columns = min(b->columns, b->allocked_columns);                                                                                                          \
-    int a_columns = min(a->columns, a->allocked_columns);                                                                                                          \
+    int m_columns = min(min(a->columns, a->allocked_columns), min(b->lines, b->allocked_lines));                                                                   \
     for (int i = 0; i < a_lines; ++i)                                                                                                                              \
     {                                                                                                                                                              \
         for (int j = 0; j < b_columns; ++j)                                                                                                                        \
         {                                                                                                                                                          \
-            for (int k = 0; k < a_columns; ++k)                                                                                                                    \
+            for (int k = 0; k < m_columns; ++k)                                                                                                                    \
                 /*ARITHM_TYPE##_TYPE_ADD_TO_RV(UCN, atMatrix##UCN##El(&res, i, j),*/                                                                               \
                   /*                 ARITHM_TYPE##_TYPE_MULT(UCN, catMatrix##UCN##El(a, i, k), catMatrix##UCN##El(b, k, j)));*/                                    \
                 ARITHM_TYPE##_TYPE_ADD_TO_RV(UCN, &res.matrix.vec[i].vec[j],                                                                                       \

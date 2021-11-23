@@ -180,12 +180,12 @@ Matrix naiveMultMatrix(const Matrix * a, const Matrix * b)
     Matrix res = defaultMatrix(a->lines, b->columns, nullGeneralType());
     int a_lines = min(a->lines, a->allocked_lines);
     int b_columns = min(b->columns, b->allocked_columns);
-    int a_columns = min(a->columns, a->allocked_columns);
+    int m_columns = min(min(a->columns, a->allocked_columns), min(b->lines, b->allocked_lines));
     for (int i = 0; i < a_lines; ++i)
     {
         for (int j = 0; j < b_columns; ++j)
         {
-            for (int k = 0; k < a_columns; ++k)
+            for (int k = 0; k < m_columns; ++k)
                 //addToGeneralTypeRV(atMatrixEl(&res, i, j),
                   //                 multGeneralType(catMatrixEl(a, i, k), catMatrixEl(b, k, j)));
                 addToGeneralTypeRV(&res.matrix.vec[i].vec[j],
