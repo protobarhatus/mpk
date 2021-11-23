@@ -8,7 +8,7 @@
 #include "matrix_general_type.h"
 #include "../vector/algorithms.h"
 #include "vector_algebraic_addendum.h"
-#define MAKE_MATRIX(UCN) \
+#define MAKE_MATRIX(UCN, ARITHM_TYPE) \
                                                                                                                                                     \
                                                                                                                                                     \
                                                                                                                                                     \
@@ -88,8 +88,8 @@ static inline UCN * atMatrix##UCN##El(Matrix##UCN * mat, int i, int j)          
     {                                                                                                                                               \
         assert (i < mat->allocked_lines && j < mat->allocked_columns);                                                                              \
         return  atVector##UCN(atVectorVector##UCN(&mat->matrix, i + mat->start_line), j + mat->start_column);                                       \
-    }                    \
-    \
+    }                                                                                                                                               \
+    assert(i < mat->lines && j < mat->columns);                                                                                                     \
     return &mat->matrix.vec[i].vec[j];                                                                                                              \
     return atVector##UCN(atVectorVector##UCN(&mat->matrix, i), j);                                                                                  \
 }                                                                                                                                                   \
@@ -101,6 +101,7 @@ static inline const UCN * catMatrix##UCN##El(const Matrix##UCN * mat, int i, int
             return mat->value_beyond_allocked_space_ptr;                                                                                            \
         return  catVector##UCN(catVectorVector##UCN(&mat->matrix, i + mat->start_line), j + mat->start_column);                                     \
     }                                                                                                                                               \
+    assert(i < mat->lines && j < mat->columns);                                                                                                     \
     return &mat->matrix.vec[i].vec[j];                                                                                                              \
     return catVector##UCN(catVectorVector##UCN(&mat->matrix, i), j);                                                                                \
 }                                                                                                                                                   \
@@ -270,7 +271,7 @@ static inline void addToMatrix##UCN(Matrix##UCN * a, const Matrix##UCN * b)     
     {                                                                                                                                                              \
         for (int j = 0; j < a->columns; ++j)                                                                                                                       \
             if (!a->is_on_buffer || (i < a->allocked_lines && j < a->allocked_columns))                                                                            \
-                addTo##UCN(atMatrix##UCN##El(a, i, j), catMatrix##UCN##El(b, i, j));                                                                               \
+                ARITHM_TYPE##_TYPE_ADD_TO(UCN, atMatrix##UCN##El(a, i, j), catMatrix##UCN##El(b, i, j));                                                           \
     }                                                                                                                                                              \
                                                                                                                                                                    \
 }                                                                                                                                                                  \
@@ -292,7 +293,7 @@ static inline void subToMatrix##UCN(Matrix##UCN * a, const Matrix##UCN * b)     
         for (int j = 0; j < a->columns; ++j)                                                                                                                       \
         {                                                                                                                                                          \
             if (!a->is_on_buffer || (i < a->allocked_lines && j < a->allocked_columns))                                                                            \
-                subTo##UCN(atMatrix##UCN##El(a, i, j), catMatrix##UCN##El(b, i, j));                                                                               \
+                ARITHM_TYPE##_TYPE_SUB_TO(UCN, atMatrix##UCN##El(a, i, j), catMatrix##UCN##El(b, i, j));                                                           \
         }                                                                                                                                                          \
     }                                                                                                                                                              \
 }                                                                                                                                                                  \
@@ -310,13 +311,19 @@ static inline Matrix##UCN subMatrix##UCN(const Matrix##UCN * a, const Matrix##UC
 static inline Matrix##UCN naiveMultMatrix##UCN(const Matrix##UCN * a, const Matrix##UCN * b)                                                                       \
 {                                                                                                                                                                  \
     Matrix##UCN res = defaultMatrix##UCN(a->lines, b->columns, null##UCN());                                                                                       \
-    for (int i = 0; i < a->lines; ++i)                                                                                                                             \
+    int a_lines = min(a->lines, a->allocked_lines);                                                                                                                \
+    int b_columns = min(b->columns, b->allocked_columns);                                                                                                          \
+    int a_columns = min(a->columns, a->allocked_columns);                                                                                                          \
+    for (int i = 0; i < a_lines; ++i)                                                                                                                              \
     {                                                                                                                                                              \
-        for (int j = 0; j < b->columns; ++j)                                                                                                                       \
+        for (int j = 0; j < b_columns; ++j)                                                                                                                        \
         {                                                                                                                                                          \
-            for (int k = 0; k < a->columns; ++k)                                                                                                                   \
-                addTo##UCN##RV(atMatrix##UCN##El(&res, i, j),                                                                                                      \
-                                   mult##UCN(catMatrix##UCN##El(a, i, k), catMatrix##UCN##El(b, k, j)));                                                           \
+            for (int k = 0; k < a_columns; ++k)                                                                                                                    \
+                /*ARITHM_TYPE##_TYPE_ADD_TO_RV(UCN, atMatrix##UCN##El(&res, i, j),*/                                                                               \
+                  /*                 ARITHM_TYPE##_TYPE_MULT(UCN, catMatrix##UCN##El(a, i, k), catMatrix##UCN##El(b, k, j)));*/                                    \
+                ARITHM_TYPE##_TYPE_ADD_TO_RV(UCN, &res.matrix.vec[i].vec[j],                                                                                       \
+                                   ARITHM_TYPE##_TYPE_MULT(UCN, &a->matrix.vec[i + a->start_line].vec[k + a->start_column],                                        \
+                                                   &b->matrix.vec[k + b->start_line].vec[j + b->start_column]));                                                   \
         }                                                                                                                                                          \
     }                                                                                                                                                              \
     return res;                                                                                                                                                    \
@@ -328,7 +335,7 @@ static inline Matrix##UCN* addMatrix##UCN##OnBuff(Matrix##UCN* buff, const Matri
     for (int i = 0; i < buff->lines; ++i)                                                                                                                          \
     {                                                                                                                                                              \
         for (int j = 0; j < buff->columns; ++j)                                                                                                                    \
-            replace##UCN(atMatrix##UCN##El(buff, i, j), add##UCN(catMatrix##UCN##El(a, i, j), catMatrix##UCN##El(b, i, j)));                                       \
+            replace##UCN(atMatrix##UCN##El(buff, i, j), ARITHM_TYPE##_TYPE_ADD(UCN, catMatrix##UCN##El(a, i, j), catMatrix##UCN##El(b, i, j)));                    \
     }                                                                                                                                                              \
     return buff;                                                                                                                                                   \
 }                                                                                                                                                                  \
@@ -338,7 +345,7 @@ static inline Matrix##UCN* subMatrix##UCN##OnBuff(Matrix##UCN* buff, const Matri
     {                                                                                                                                                              \
         for (int j = 0; j < buff->columns; ++j)                                                                                                                    \
         {                                                                                                                                                          \
-            replace##UCN(atMatrix##UCN##El(buff, i, j), sub##UCN(catMatrix##UCN##El(a, i, j), catMatrix##UCN##El(b, i, j)));                                       \
+            replace##UCN(atMatrix##UCN##El(buff, i, j), ARITHM_TYPE##_TYPE_SUB(UCN, catMatrix##UCN##El(a, i, j), catMatrix##UCN##El(b, i, j)));                    \
         }                                                                                                                                                          \
     }                                                                                                                                                              \
     return buff;                                                                                                                                                   \
@@ -547,11 +554,11 @@ static inline void divideOnLeadElement##UCN(Matrix##UCN * matrix, Matrix##UCN * 
     UCN lead_el = *atMatrix##UCN##El(matrix, x, x);                                                                                                                \
     for (int i = x; i < matrix->lines; ++i)                                                                                                                        \
     {                                                                                                                                                              \
-        divTo##UCN(atMatrix##UCN##El(matrix, x, i), &lead_el);                                                                                                     \
+        ARITHM_TYPE##_TYPE_DIV_TO(UCN, atMatrix##UCN##El(matrix, x, i), &lead_el);                                                                                 \
     }                                                                                                                                                              \
     for (int i = 0; i < matrix->lines; ++i)                                                                                                                        \
     {                                                                                                                                                              \
-        divTo##UCN(atMatrix##UCN##El(result, x, i), &lead_el);                                                                                                     \
+        ARITHM_TYPE##_TYPE_DIV_TO(UCN, atMatrix##UCN##El(result, x, i), &lead_el);                                                                                 \
     }                                                                                                                                                              \
 }                                                                                                                                                                  \
                                                                                                                                                                    \
@@ -574,7 +581,7 @@ assert(matrix->lines == matrix->columns);                                       
         divideOnLeadElement##UCN(matrix, &result, n);                                                                                                              \
         for (int i = n + 1; i < height; ++i)                                                                                                                       \
         {                                                                                                                                                          \
-            UCN multiplier = minus##UCN##RV(div##UCN(atMatrix##UCN##El(matrix, i, n), atMatrix##UCN##El(matrix, n, n)));                                           \
+            UCN multiplier = minus##UCN##RV(ARITHM_TYPE##_TYPE_DIV(UCN, atMatrix##UCN##El(matrix, i, n), atMatrix##UCN##El(matrix, n, n)));                        \
             /*HOW ITS UGLY IN C*/                                                                                                                                  \
             replaceVector##UCN(atMatrix##UCN(matrix, i) , addVector##UCN##LVRV(matrix->at(matrix, i),                                                              \
                                                          Vector##UCN##MultedOnNum(atMatrix##UCN(matrix, n), &multiplier)));                                        \
@@ -591,7 +598,7 @@ assert(matrix->lines == matrix->columns);                                       
     {                                                                                                                                                              \
         for (int i = n - 1; i >= 0; --i)                                                                                                                           \
         {                                                                                                                                                          \
-            UCN multiplier = minus##UCN##RV(div##UCN(atMatrix##UCN##El(matrix, i, n), atMatrix##UCN##El(matrix, n, n)));                                           \
+            UCN multiplier = minus##UCN##RV(ARITHM_TYPE##_TYPE_DIV(UCN, atMatrix##UCN##El(matrix, i, n), atMatrix##UCN##El(matrix, n, n)));                        \
             replaceVector##UCN(atMatrix##UCN(matrix, i) , addVector##UCN##LVRV(matrix->at(matrix, i),                                                              \
                                                          Vector##UCN##MultedOnNum(matrix->at(matrix, n), &multiplier)));                                           \
             replaceVector##UCN(atMatrix##UCN(&result, i) , addVector##UCN##LVRV(atMatrix##UCN(&result, i),                                                         \

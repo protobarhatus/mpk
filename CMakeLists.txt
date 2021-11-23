@@ -4,7 +4,7 @@ project(mpk C)
 set(CMAKE_C_STANDARD 11)
 
 
-
+#add_compile_options(-O3)
 #include(gen_lib/vector/CMakeLists.txt)
 #include (gen_lib/user_interacts/CMakeLists.txt)
 #include (gen_lib/linear_algebra_elements/CMakeLists.txt)

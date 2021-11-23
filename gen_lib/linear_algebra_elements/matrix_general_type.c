@@ -178,13 +178,19 @@ Matrix subMatrix(const Matrix * a, const Matrix * b)
 Matrix naiveMultMatrix(const Matrix * a, const Matrix * b)
 {
     Matrix res = defaultMatrix(a->lines, b->columns, nullGeneralType());
-    for (int i = 0; i < a->lines; ++i)
+    int a_lines = min(a->lines, a->allocked_lines);
+    int b_columns = min(b->columns, b->allocked_columns);
+    int a_columns = min(a->columns, a->allocked_columns);
+    for (int i = 0; i < a_lines; ++i)
     {
-        for (int j = 0; j < b->columns; ++j)
+        for (int j = 0; j < b_columns; ++j)
         {
-            for (int k = 0; k < a->columns; ++k)
-                addToGeneralTypeRV(atMatrixEl(&res, i, j),
-                                   multGeneralType(catMatrixEl(a, i, k), catMatrixEl(b, k, j)));
+            for (int k = 0; k < a_columns; ++k)
+                //addToGeneralTypeRV(atMatrixEl(&res, i, j),
+                  //                 multGeneralType(catMatrixEl(a, i, k), catMatrixEl(b, k, j)));
+                addToGeneralTypeRV(&res.matrix.vec[i].vec[j],
+                                   multGeneralType(&a->matrix.vec[i + a->start_line].vec[k + a->start_column],
+                                                   &b->matrix.vec[k + b->start_line].vec[j + b->start_column]));
         }
     }
     return res;

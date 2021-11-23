@@ -23,9 +23,9 @@ int test()
     for (int i = 0; i < 1000; ++i)
     {
         int l, c, w;
-        l = rand() % 70 + 2;
-        c = rand() % 70 + 2;
-        w = rand() % 70 + 2;
+        l = rand() % 150 + 2;
+        c = rand() % 150 + 2;
+        w = rand() % 150 + 2;
         MatrixInt a = scanfRandMatrixInt(l, c), b = scanfRandMatrixInt(c, w);
         MatrixInt r1 = naiveMultMatrixInt(&a, &b);
         MatrixInt r2 = multMatrixInt(&a, &b);
@@ -40,6 +40,7 @@ int test()
             printfMatrixInt(&r1);
             printf("Alg:\n");
             printfMatrixInt(&r2);
+            getchar();
         }
         else
             printf("TEST %d: OK\n", i);
@@ -47,12 +48,14 @@ int test()
         destructMatrixInt(&b);
         destructMatrixInt(&r1);
         destructMatrixInt(&r2);
+
     }
 }
 
 
 int main(int argc, char * argv[])
 {
+
 #ifdef debug
     printf("Debug\n");
 #endif
@@ -64,16 +67,19 @@ int main(int argc, char * argv[])
             test();
 
     }
-
+    //int size = 500;
    // time_t t1, t2;
-   // t1 = clock();
+
     MatrixInt a = scanfMatrixInt(), b = scanfMatrixInt();
+  // MatrixInt a = scanfRandMatrixInt(size, size), b = scanfRandMatrixInt(size, size);
+
+   // t1 = clock();
 
     MatrixInt c = multMatrixInt(&a, &b);
-   // t2 = clock();
-   // printf("Done %ld", t2 - t1);
+    //t2 = clock();
+  //  printf("Done %ld", t2 - t1);
 
-    printfMatrixInt(&c);
+    //printfMatrixInt(&c);
 
     destructMatrixInt(&a);
     destructMatrixInt(&b);
