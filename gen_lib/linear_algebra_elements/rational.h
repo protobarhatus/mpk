@@ -47,8 +47,8 @@ bool isNull(const Rational * r);
 DECLARE_TYPE_AS_ARITHMETIC(Rational, Rational);
 
 
-MAKE_VECTOR(Rational);
-MAKE_VECTOR(VectorRational);
+MAKE_VECTOR(Rational, STRUCT);
+MAKE_VECTOR(VectorRational, STRUCT);
 
 #include "vector_algebraic_addendum.h"
 

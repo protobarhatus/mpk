@@ -114,13 +114,14 @@ Polynom schonhageStrassenAlgorithm(const Polynom * a, const Polynom * b);
 //thus, vector will contain Polynom as objects, but will not destruct them and that will allow
 //me make a split on single polynom buf
 DECLARE_SIMPLE_TYPE(PolynomRef, PolynomRef)
-MAKE_VECTOR(PolynomRef, PolynomRef);
+//MAKE_VECTOR(PolynomRef);
 
 DECLARE_STRUCT_TYPE(Polynom, Polynom)
-MAKE_VECTOR(Polynom, Polynom)
+MAKE_VECTOR(Polynom, STRUCT)
+MAKE_VECTOR(PolynomRef, STRUCT)
 
 GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(Polynom, Polynom, mult, Polynom)
-GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(Polynom, Polynom, areEqual, bool);
+//GENERATE_RIGHT_VALUE_BINARY_EXTENSIONS(Polynom, Polynom, equal, bool);
 
 
 #endif //MPK_POLYNOM_H

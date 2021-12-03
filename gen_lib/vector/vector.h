@@ -8,22 +8,22 @@
 
 
 
-MAKE_VECTOR(Int);
-MAKE_VECTOR(Char);
-MAKE_VECTOR(Double);
-MAKE_VECTOR(Bool);
-MAKE_VECTOR(Complex)
+MAKE_VECTOR(Int, SIMPLE);
+MAKE_VECTOR(Char, SIMPLE);
+MAKE_VECTOR(Double, SIMPLE);
+MAKE_VECTOR(Bool, SIMPLE);
+MAKE_VECTOR(Complex, SIMPLE)
 
 
-MAKE_VECTOR(VectorInt);
+MAKE_VECTOR(VectorInt, STRUCT);
 
-MAKE_VECTOR(VectorVectorInt);
+MAKE_VECTOR(VectorVectorInt, STRUCT);
 
-MAKE_VECTOR(VectorBool)
+MAKE_VECTOR(VectorBool, STRUCT)
 
-MAKE_VECTOR(GeneralType)
+MAKE_VECTOR(GeneralType, STRUCT)
 
-MAKE_VECTOR(VectorGeneralType)
+MAKE_VECTOR(VectorGeneralType, STRUCT)
 
 
 

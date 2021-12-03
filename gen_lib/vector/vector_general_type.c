@@ -212,7 +212,19 @@ int getSizeVector(const Vector * a)
 
 void resizeVector(Vector * vec, int new_size)
 {
-    assert(new_size < vec->size);
+    //assert(new_size < vec->size);
+    if (new_size >= vec->size)
+    {
+        if (new_size > vec->allocated_size)
+        {
+            while (new_size >= vec->allocated_size)
+                vec->allocated_size = vec->allocated_size * 2 + 1;
+            vec->vec = realloc(vec->vec, vec->allocated_size * sizeof(GeneralType));
+        }
+        memset(atVector(vec, vec->size), 0, (new_size - vec->size) * sizeof (GeneralType));
+        vec->size = new_size;
+        return;
+    }
     for (int i = vec->size - 1; i >= new_size; --i)
         destructGeneralType(vec->vec + i);
     vec->size = new_size;

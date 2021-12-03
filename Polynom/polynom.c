@@ -380,7 +380,7 @@ PolynomOfPolynoms defaultPolynomOfPolynoms(int deg)
     empty_polynom.deg = 0;
     PolynomOfPolynoms res;
     res.deg = deg;
-    res.polynoms = defaultVectorPolynomRefCalloc(deg + 1, empty_polynom);
+    res.polynoms = defaultVectorPolynomRef(deg + 1, &empty_polynom);
     return res;
 }
 void destructPolynomOfPolynoms(PolynomOfPolynoms * pol)
@@ -469,7 +469,7 @@ PolynomRational defaultPolynomRational(int deg, Rational def_value)
 {
     PolynomRational res;
     res.deg = deg;
-    res.pol = defaultVectorRationalCalloc(deg + 1, def_value);
+    res.pol = defaultVectorRationalRV(deg + 1, def_value);
     return res;
 }
 PolynomRational emptyPolynomRational()
@@ -555,10 +555,10 @@ static Polynom toPolynomFromPolynomRational(const PolynomRational * pol)
     return res;
 }
 
-static VectorPolynom multMatrixOfRationalOnVectorOfPolynoms(const Matrix * mat, const VectorPolynomRational * vec, int base_exponent)
+static VectorPolynom multMatrixOfRationalOnVectorOfPolynoms(const MatrixRational * mat, const VectorPolynomRational * vec, int base_exponent)
 {
     int lines = vec->getSize(vec);
-    VectorPolynomRational preresult = defaultVectorPolynomRationalCalloc(lines,
+    VectorPolynomRational preresult = defaultVectorPolynomRationalRV(lines,
                                                                          defaultPolynomRational((base_exponent - 1)*2 + 1, nullRational()));
     for (int i = 0; i < lines; ++i)
     {
@@ -570,7 +570,7 @@ static VectorPolynom multMatrixOfRationalOnVectorOfPolynoms(const Matrix * mat, 
             destructPolynomRational(&buff);
         }
     }
-    VectorPolynom result = defaultVectorPolynomCalloc(lines, emptyPolynom());
+    VectorPolynom result = defaultVectorPolynomRV(lines, emptyPolynom());
     for (int i = 0; i < lines; ++i)
         *atVectorPolynom(&result, i) = toPolynomFromPolynomRational(atVectorPolynomRational(&preresult, i));
     destructVectorPolynomRational(&preresult);
@@ -600,9 +600,9 @@ Polynom toomCookMultiplication(const Polynom * a, const Polynom * b)
 
     int res_deg_of_dig = p.deg + q.deg;
 
-    Matrix coe_matrix = inverseMatrixRV(makeCoefficientMatrixForToomCook(res_deg_of_dig));
+    MatrixRational coe_matrix = inverseMatrixRationalRV(makeCoefficientMatrixForToomCook(res_deg_of_dig));
 
-    VectorPolynomRational values_at_points = defaultVectorPolynomRationalCalloc(res_deg_of_dig + 1, emptyPolynomRational());
+    VectorPolynomRational values_at_points = defaultVectorPolynomRationalRV(res_deg_of_dig + 1, emptyPolynomRational());
     int point = 0;
     for (int i = 0; i < res_deg_of_dig; ++i)
     {
@@ -646,7 +646,7 @@ Polynom toomCookMultiplication(const Polynom * a, const Polynom * b)
     destructPolynomOfPolynoms(&p);
     destructPolynomOfPolynoms(&q);
 
-    destructMatrix(&coe_matrix);
+    destructMatrixRational(&coe_matrix);
     destructVectorPolynomRational(&values_at_points);
     destructVectorPolynom(&coefficients_of_result);
 
@@ -672,7 +672,7 @@ Polynom schonhageStrassenAlgorithm(const Polynom * a, const Polynom * b)
     DiscreteFourier a_dft = discreteFourierTransformForPolynom(&a_incr);
     DiscreteFourier b_dft = discreteFourierTransformForPolynom(&b_incr);
 
-    DiscreteFourier res_dft = defaultVectorComplexCalloc(2*n, 0);
+    DiscreteFourier res_dft = defaultVectorComplex(2*n, 0);
     for (int i = 0; i < 2*n; ++i)
     {
         *atVectorComplex(&res_dft, i) = *atVectorComplex(&a_dft, i) * *atVectorComplex(&b_dft, i);

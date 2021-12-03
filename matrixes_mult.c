@@ -67,17 +67,17 @@ int main(int argc, char * argv[])
             test();
 
     }
-    //int size = 500;
-   // time_t t1, t2;
+    int size = 1024;
+    time_t t1, t2;
 
-    MatrixInt a = scanfMatrixInt(), b = scanfMatrixInt();
-  // MatrixInt a = scanfRandMatrixInt(size, size), b = scanfRandMatrixInt(size, size);
+    //MatrixInt a = scanfMatrixInt(), b = scanfMatrixInt();
+   MatrixInt a = scanfRandMatrixInt(size, size), b = scanfRandMatrixInt(size, size);
 
-   // t1 = clock();
+    t1 = clock();
 
     MatrixInt c = multMatrixInt(&a, &b);
-    //t2 = clock();
-  //  printf("Done %ld", t2 - t1);
+    t2 = clock();
+    printf("Done %ld", t2 - t1);
 
     //printfMatrixInt(&c);
 

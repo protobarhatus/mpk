@@ -5,7 +5,7 @@
 #include "string.h"
 #include "../types_and_functions_declarations/general_type.h"
 #include "vector_general_type.h"
-#define MAKE_VECTOR(UCN) \
+#define MAKE_VECTOR(UCN, ARITHM_TYPE) \
                                                                                                            \
                                                                                                            \
                                                                                                            \
@@ -32,7 +32,7 @@ struct Vector##UCN##_struct                                                     
 };                                                                                                         \
                                                                                                            \
 typedef struct Vector##UCN##_struct Vector##UCN;                                                           \
-typedef Vector##UCN Vector##UCN##Ref;                                                                      \
+typedef Vector##UCN VectorRef##UCN;                                                                        \
                                                                                                            \
 static inline Vector##UCN defaultVector##UCN(int size, const UCN * def_value);                             \
 static inline Vector##UCN defaultVector##UCN##RV(int size, UCN def_value);                                 \
@@ -40,7 +40,7 @@ static inline Vector##UCN defaultVector##UCN##RV(int size, UCN def_value);      
 static inline Vector##UCN defaultVector##UCN##WithStrictSize(int size, const UCN * def_value);             \
 static inline Vector##UCN defaultVector##UCN##WithStrictSizeRV(int size, UCN def_value);                   \
                                                                                                            \
-static inline Vector##UCN##Ref wrapVector##UCN(const UCN * vec, int size);                                 \
+static inline VectorRef##UCN wrapVector##UCN(const UCN * vec, int size);                                   \
                                                                                                            \
 static inline Vector##UCN emptyVector##UCN();                                                              \
                                                                                                            \
@@ -64,7 +64,7 @@ static inline void resizeVector##UCN(Vector##UCN * vec, int new_size);          
                                                                                                            \
 static inline void pushBackCallocedVector##UCN(Vector##UCN * vec, UCN * obj);                              \
                                                                                                            \
-static inline UCN * Vector##UCN##DissolveIntoPointer(Vector##UCN##Ref * vec);                              \
+static inline UCN * Vector##UCN##DissolveIntoPointer(VectorRef##UCN * vec);                                \
                                                                                                            \
 static inline UCN * Vector##UCN##Back(Vector##UCN * vec);                                                  \
                                                                                                            \
@@ -95,12 +95,13 @@ static inline Vector##UCN defaultVector##UCN(int size, const UCN * def_value)   
     res.size = size;                                                                                     \
     res.allocated_size = size * 2 + 1;                                                                   \
     res.vec = calloc(res.allocated_size, sizeof(UCN));                                                   \
+    assignFunctionsVector##UCN(&res);                                                                    \
     if (def_value == NULL)                                                                               \
         return res;                                                                                      \
     for (int i = 0; i < size; ++i)                                                                       \
         res.vec[i] = copy##UCN(def_value);                                                               \
                                                                                                          \
-    assignFunctionsVector##UCN(&res);                                                                    \
+                                                                                                         \
                                                                                                          \
     return res;                                                                                          \
 }                                                                                                        \
@@ -129,12 +130,13 @@ static inline Vector##UCN defaultVector##UCN##WithStrictSize(int size, const UCN
     res.size = size;                                                                                     \
     res.allocated_size = size;                                                                           \
     res.vec = calloc(res.allocated_size, sizeof(UCN));                                                   \
+    assignFunctionsVector##UCN(&res);                                                                    \
     if (def_value == NULL)                                                                               \
         return res;                                                                                      \
     for (int i = 0; i < size; ++i)                                                                       \
         res.vec[i] = copy##UCN(def_value);                                                               \
                                                                                                          \
-    assignFunctionsVector##UCN(&res);                                                                    \
+                                                                                                         \
                                                                                                          \
     return res;                                                                                          \
 }                                                                                                        \
@@ -157,9 +159,9 @@ static inline Vector##UCN defaultVector##UCN##WithStrictSizeRV(int size, UCN def
     return res;                                                                                          \
 }                                                                                                        \
                                                                                                          \
-static inline Vector##UCN##Ref wrapVector##UCN(const UCN * vec, int size)                                \
+static inline VectorRef##UCN wrapVector##UCN(const UCN * vec, int size)                                  \
 {                                                                                                        \
-    Vector##UCN##Ref res;                                                                                \
+    VectorRef##UCN res;                                                                                  \
     res.size = size;                                                                                     \
     res.allocated_size = -2;                                                                             \
     res.vec = (UCN *)vec;                                                                                \
@@ -285,7 +287,19 @@ static inline int getSizeVector##UCN(const Vector##UCN * a)                     
                                                                                                          \
 static inline void resizeVector##UCN(Vector##UCN * vec, int new_size)                                    \
 {                                                                                                        \
-    assert(new_size < vec->size);                                                                        \
+    /*assert(new_size < vec->size);*/                                                                    \
+    if (new_size >= vec->size)                                                                           \
+    {                                                                                                    \
+        if (new_size > vec->allocated_size)                                                              \
+        {                                                                                                \
+            while (new_size >= vec->allocated_size)                                                      \
+                vec->allocated_size = vec->allocated_size * 2 + 1;                                       \
+            vec->vec = realloc(vec->vec, vec->allocated_size * sizeof(UCN));                             \
+        }                                                                                                \
+        memset(atVector##UCN(vec, vec->size), 0, (new_size - vec->size) * sizeof (UCN));                 \
+        vec->size = new_size;                                                                            \
+        return;                                                                                          \
+    }                                                                                                    \
     for (int i = vec->size - 1; i >= new_size; --i)                                                      \
         destruct##UCN(vec->vec + i);                                                                     \
     vec->size = new_size;                                                                                \
@@ -298,7 +312,7 @@ static inline void pushBackCallocedVector##UCN(Vector##UCN * vec, UCN * obj)    
     free(obj);                                                                                           \
 }                                                                                                        \
                                                                                                          \
-static inline UCN * Vector##UCN##DissolveIntoPointer(Vector##UCN##Ref * vec)                             \
+static inline UCN * Vector##UCN##DissolveIntoPointer(VectorRef##UCN * vec)                               \
 {                                                                                                        \
     vec->size = -1;                                                                                      \
     vec->allocated_size = -1;                                                                            \
